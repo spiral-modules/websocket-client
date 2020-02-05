@@ -6,14 +6,14 @@
     "strict": true,
     "removeComments": true,
     "target": "esnext",
-    "declaration": true,
+    "composite": true,
     "moduleResolution": "node"
   },
   "include": [
     "lib/*"
   ],
   "exclude": [
-    "node_modules",
-    "test/*"
+    "*config*",
+    "./test"
   ]
 }
