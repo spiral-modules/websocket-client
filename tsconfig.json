@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "strict": true,
+    "removeComments": true,
+    "target": "esnext",
+    "declaration": true,
+    "moduleResolution": "node"
+  },
+  "include": [
+    "lib/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "test/*"
+  ]
+}

@@ -1,0 +1,7 @@
+.idea/
+.idea/*
+node_modules/*
+typings/*
+.env
+npm-debug.log
+.phpstorm.meta.php/
