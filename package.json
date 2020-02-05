@@ -1,6 +1,6 @@
 {
   "name": "websockets",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "client websocket for spiral framework",
   "keywords": [
     "websocket",
