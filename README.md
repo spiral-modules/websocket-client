@@ -139,3 +139,15 @@ const ErrorEvent = {
 ```
 
 `closed` and `connected` subscriptions do not have any event.
+
+Development
+-----------
+
+##### Prerequisites
+
+* [nodejs](https://nodejs.org/en/) 10.16.3+
+* [yarn](https://yarnpkg.com/lang/en/) 1.19.1+
+
+##### Windows
+
+On windows execute `git config core.autocrlf false` to disable automatic line ending conversion.
