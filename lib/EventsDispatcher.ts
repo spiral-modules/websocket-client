@@ -1,5 +1,5 @@
-import CallbackRegistry from './callbackRegistry';
-import { ISFSocketEvent } from './sfSocket';
+import CallbackRegistry from './CallbackRegistry';
+import { ISFSocketEvent } from './SFSocket';
 
 
 export default class EventsDispatcher {

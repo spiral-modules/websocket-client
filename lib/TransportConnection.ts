@@ -1,14 +1,14 @@
-import EventsDispatcher from './eventsDispatcher';
-import { ISFSocketConfig, ISFSocketEvent } from './sfSocket';
+import EventsDispatcher from './EventsDispatcher';
+import { ISFSocketConfig, ISFSocketEvent } from './SFSocket';
 
-export interface TransportHooks {
+export interface ITransportHooks {
   url: string;
   isInitialized(): boolean;
   getSocket(url: string, options?: ISFSocketConfig): WebSocket;
 }
 
 export default class TransportConnection extends EventsDispatcher {
-  hooks: TransportHooks;
+  hooks: ITransportHooks;
 
   name: string;
 
@@ -18,7 +18,7 @@ export default class TransportConnection extends EventsDispatcher {
 
   initialize: Function;
 
-  constructor(hooks : TransportHooks, name : string) {
+  constructor(hooks : ITransportHooks, name : string) {
     super();
     this.initialize = () => {
       const self = this;

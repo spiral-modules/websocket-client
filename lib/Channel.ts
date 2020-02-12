@@ -1,5 +1,5 @@
-import EventsDispatcher from './eventsDispatcher';
-import { SFSocket } from './sfSocket';
+import EventsDispatcher from './EventsDispatcher';
+import { SFSocket } from './SFSocket';
 
 export default class Channel extends EventsDispatcher {
   name: string;

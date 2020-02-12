@@ -1,15 +1,12 @@
-import Channel from './channel';
-import EventsDispatcher from './eventsDispatcher';
-import ConnectionManager from './connectionManager';
-
-const STORAGE_KEY = 'sfsocket_storage';
-
+import Channel from './Channel';
+import EventsDispatcher from './EventsDispatcher';
+import ConnectionManager from './connection/ConnectionManager';
+import { defaultConfig, STORAGE_KEY } from './constants';
 
 const CONNECTION_EVENTS = {
   JOIN: 'join',
   LEAVE: 'leave',
 };
-
 
 export interface IChannels {
   [name: string]: Channel;
@@ -35,16 +32,6 @@ export interface ISFSocketEvent {
     code?: string | number,
   } | null
 }
-
-const defaultConfig: ISFSocketConfig = {
-  host: '',
-  port: 80,
-  portTLS: 443,
-  path: '',
-  unavailableTimeout: 10000,
-  useTLS: false,
-  useStorage: false,
-};
 
 export class SFSocket {
   static instances: SFSocket[] = [];

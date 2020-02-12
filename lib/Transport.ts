@@ -1,6 +1,6 @@
-import Connection from './connection';
-import TransportConnection, { TransportHooks } from './transportConnection';
-import { ISFSocketConfig } from './sfSocket';
+import Connection from './connection/Connection';
+import TransportConnection, { ITransportHooks } from './TransportConnection';
+import { ISFSocketConfig } from './SFSocket';
 
 export interface IRunner {
   abort: () => void;
@@ -11,7 +11,7 @@ export interface ITransport {
 }
 
 export default class Transport implements ITransport {
-  hooks: TransportHooks;
+  hooks: ITransportHooks;
 
   name: string;
 
@@ -28,11 +28,10 @@ export default class Transport implements ITransport {
     this.hooks = {
       url,
       isInitialized() {
-        return Boolean(window.WebSocket/* || window.MozWebSocket */);
+        return !!window.WebSocket;
       },
       getSocket(socketUrl) {
-        const Constructor = window.WebSocket/* || window.MozWebSocket */;
-        return new Constructor(socketUrl);
+        return new WebSocket(socketUrl);
       },
     };
     this.name = name;
@@ -52,9 +51,12 @@ export default class Transport implements ITransport {
 
     const unbindListeners = () => {
       transport.unbind('initialized', onInitialized);
-      transport.unbind('open', onOpen); // eslint-disable-line no-use-before-define
-      transport.unbind('error', onError); // eslint-disable-line no-use-before-define
-      transport.unbind('closed', onClosed); // eslint-disable-line no-use-before-define
+      // eslint-disable-next-line no-use-before-define
+      transport.unbind('open', onOpen);
+      // eslint-disable-next-line no-use-before-define
+      transport.unbind('error', onError);
+      // eslint-disable-next-line no-use-before-define
+      transport.unbind('closed', onClosed);
     };
 
     const onOpen = () => {
@@ -68,6 +70,7 @@ export default class Transport implements ITransport {
       unbindListeners();
       callback(error);
     };
+
     const onClosed = () => {
       unbindListeners();
     };
