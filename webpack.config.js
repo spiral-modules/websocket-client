@@ -5,7 +5,7 @@ const mode = isProduction ? 'production' : 'development';
 const devtool = isProduction ? 'source-map' : 'eval-source-map';
 
 module.exports = {
-  entry: './lib/index.ts',
+  entry: { socket: './lib/index.ts' },
   target: 'web',
   mode,
   devtool,

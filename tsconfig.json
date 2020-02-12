@@ -1,19 +1,20 @@
 {
   "compilerOptions": {
-    "allowJs": true,
+    "outDir": "build",
+    "rootDir": "lib",
+    "baseUrl": "lib",
+    // "allowJs": true,
     "esModuleInterop": true,
     "sourceMap": true,
     "strict": true,
     "removeComments": true,
     "target": "esnext",
     "composite": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "declaration": true,
+    "declarationMap": true
   },
-  "include": [
-    "lib/*"
-  ],
   "exclude": [
-    "*config*",
-    "./test"
+    "**/__tests__"
   ]
 }

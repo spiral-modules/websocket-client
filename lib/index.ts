@@ -1,4 +1,4 @@
-import { SFSocket } from './sfSocket';
+import { SFSocket } from './SFSocket';
 
 const makeSocketOptions = (wsUrl: string) => {
   const url = new URL(wsUrl);
