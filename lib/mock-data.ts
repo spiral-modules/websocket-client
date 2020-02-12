@@ -1,4 +1,4 @@
-import { ISFSocketConfig } from '../SFSocket';
+import { ISFSocketConfig } from './SFSocket';
 
 
 const socketOptions: ISFSocketConfig = {

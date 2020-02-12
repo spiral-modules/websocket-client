@@ -1,7 +1,7 @@
 /* eslint-disable no-new */
 import WS from 'jest-websocket-mock';
 import { SFSocket } from '../index';
-import { socketOptions, makeTestSocketUrl } from './resources';
+import { socketOptions, makeTestSocketUrl } from '../mock-data';
 
 const serverMessage = JSON.stringify({ topic: 'message', payload: 'test' });
 const clientMessage = {

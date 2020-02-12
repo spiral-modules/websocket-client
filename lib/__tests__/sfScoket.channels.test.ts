@@ -1,7 +1,7 @@
 /* eslint-disable no-new */
 import WS from 'jest-websocket-mock';
 import { SFSocket } from '../index';
-import { socketOptions, makeTestSocketUrl } from './resources';
+import { socketOptions, makeTestSocketUrl } from '../mock-data';
 
 const serverUrl = makeTestSocketUrl(socketOptions);
 const clientMessage = {
@@ -100,7 +100,9 @@ describe('sfSocket channels', () => {
   });
 
   test('sfSocket channel error callback should be called', async () => {
-    const consoleError = console.error = jest.fn();
+    const consoleError = jest.fn();
+    // eslint-disable-next-line no-console
+    console.error = consoleError;
     const channelCallback = jest.fn();
 
     const Server = new WS(serverUrl, { jsonProtocol: true });
