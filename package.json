@@ -20,6 +20,11 @@
     "lint": "eslint ./**/*.ts --fix",
     "test": "jest"
   },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn lint"
+    }
+  },
   "author": "SpiralScout",
   "license": "MIT",
   "dependencies": {},
@@ -41,6 +46,7 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.18.0",
     "eslint-plugin-react-hooks": "^1.7.0",
+    "husky": "^4.2.2",
     "jest": "^25.1.0",
     "jest-websocket-mock": "^2.0.1",
     "mock-socket": "^9.0.3",
