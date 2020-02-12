@@ -18,7 +18,12 @@
     "build:js": "webpack",
     "build": "cross-env NODE_ENV=production yarn build:js",
     "lint": "eslint ./**/*.ts --fix",
-    "test": "jest lib/test/*.test.js"
+    "test": "jest"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn lint"
+    }
   },
   "author": "SpiralScout",
   "license": "MIT",
@@ -29,6 +34,7 @@
     "@babel/preset-env": "^7.8.3",
     "@babel/preset-typescript": "^7.8.3",
     "@babel/types": "^7.8.3",
+    "@types/jest": "^25.1.2",
     "@typescript-eslint/eslint-plugin": "^2.17.0",
     "@typescript-eslint/parser": "^2.17.0",
     "babel-jest": "^25.1.0",
@@ -40,10 +46,12 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.18.0",
     "eslint-plugin-react-hooks": "^1.7.0",
+    "husky": "^4.2.2",
     "jest": "^25.1.0",
     "jest-websocket-mock": "^2.0.1",
     "mock-socket": "^9.0.3",
     "rimraf": "^3.0.2",
+    "ts-jest": "^25.2.0",
     "ts-loader": "^6.2.0",
     "typescript": "^3.6.4",
     "webpack": "^4.41.0",

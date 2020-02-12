@@ -1,7 +1,6 @@
-/* eslint-disable no-new */
 import WS from 'jest-websocket-mock';
 import { SFSocket } from '../index';
-import { socketOptions, makeTestSocketUrl } from './resources';
+import { socketOptions, makeTestSocketUrl } from '../mock-data';
 
 const fakeUrl = makeTestSocketUrl(socketOptions);
 
@@ -18,7 +17,9 @@ describe('sfSocket connections', () => {
   });
 
   test('sfSocket can receive message with error', async () => {
-    const consoleError = console.error = jest.fn();
+    const consoleError = jest.fn();
+    // eslint-disable-next-line no-console
+    console.error = consoleError;
     const ServerMessage = { type: 'GREETING', payload: 'hello' };
 
     const Server = new WS(makeTestSocketUrl(socketOptions));
@@ -36,7 +37,9 @@ describe('sfSocket connections', () => {
   });
 
   test('sfSocket can receive message without error', async () => {
-    const consoleError = console.error = jest.fn();
+    const consoleError = jest.fn();
+    // eslint-disable-next-line no-console
+    console.error = consoleError;
     const ServerMessage = JSON.stringify({ type: 'GREETING', payload: 'hello' });
 
     const ClientSocket = new SFSocket(socketOptions);
@@ -78,7 +81,7 @@ describe('sfSocket events', () => {
   test('sfSocket should push join event', async () => {
     const Server = new WS(fakeUrl);
     const ClientSocket = new SFSocket(socketOptions);
-    const joinData = 'joinData';
+    const joinData = ['joinData'];
     const clientMessage = JSON.stringify({ cmd: 'join', args: joinData });
 
     SFSocket.ready();
@@ -95,7 +98,7 @@ describe('sfSocket events', () => {
   test('sfSocket should push leave event', async () => {
     const Server = new WS(fakeUrl);
     const ClientSocket = new SFSocket(socketOptions);
-    const joinData = 'joinData';
+    const joinData = ['joinData'];
     const clientMessage = JSON.stringify({ cmd: 'leave', args: joinData });
 
     SFSocket.ready();

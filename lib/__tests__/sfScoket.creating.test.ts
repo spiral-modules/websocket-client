@@ -1,8 +1,5 @@
-/* eslint-disable no-new */
-/* eslint-disable no-undef */
-
 import { SFSocket } from '../index';
-import { socketOptions } from './resources';
+import { socketOptions } from '../mock-data';
 
 
 describe('sfSocket instances count', () => {
@@ -11,14 +8,16 @@ describe('sfSocket instances count', () => {
   });
 
   test('should be once instance', () => {
-    new SFSocket(socketOptions);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const t1 = new SFSocket(socketOptions);
     expect(SFSocket.instances.length).toBe(1);
   });
 
   test('should be multiple instances', () => {
-    new SFSocket(socketOptions);
-    new SFSocket(socketOptions);
-    new SFSocket(socketOptions);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let t1 = new SFSocket(socketOptions);
+    t1 = new SFSocket(socketOptions);
+    t1 = new SFSocket(socketOptions);
 
     expect(SFSocket.instances.length).toBe(3);
   });
@@ -28,7 +27,7 @@ describe('initialization sfSocket with options', () => {
   test('should be an error with nullable options', () => {
     const optionsError = new Error('sfSocket options should be an object');
 
-    expect(() => new SFSocket(null)).toThrowError(optionsError);
+    expect(() => new SFSocket(null as any)).toThrowError(optionsError);
   });
 
   test('should be an error without options', () => {
