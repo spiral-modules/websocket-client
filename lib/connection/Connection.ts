@@ -1,7 +1,7 @@
-import EventsDispatcher from './eventsDispatcher';
-import {ISFSocketEvent} from './sfSocket';
-import TransportConnection from './transportConnection';
-import {decodeMessage, encodeMessage, prepareCloseAction} from "./messageCodingUtils";
+import EventsDispatcher from '../EventsDispatcher';
+import { ISFSocketEvent } from '../SFSocket';
+import TransportConnection from '../TransportConnection';
+import { decodeMessage, encodeMessage, prepareCloseAction } from '../messageCodingUtils';
 
 export default class Connection extends EventsDispatcher {
   id: string;

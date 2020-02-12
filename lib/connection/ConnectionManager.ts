@@ -1,24 +1,8 @@
-import EventsDispatcher from './eventsDispatcher';
-import Transport, { IRunner, ITransport } from './transport';
-import Connection from './connection';
-import { ISFSocketConfig, ISFSocketEvent } from './sfSocket';
-
-interface Action {
-  action: string;
-  id?: string;
-  error?: any; // TODO
-}
-
-export interface ErrorCallbacks {
-  refused: (result: Action) => void;
-  unavailable: (result: Action) => void;
-}
-
-export interface ConnectionCallbacks {
-  message: (message: any) => void; // TODO
-  error: (error: any) => void; // TODO
-  closed: (reason: any) => void; // TODO
-}
+import EventsDispatcher from '../EventsDispatcher';
+import Transport, { IRunner, ITransport } from '../Transport';
+import Connection from './Connection';
+import { ISFSocketConfig, ISFSocketEvent } from '../SFSocket';
+import { IAction, IConnectionCallbacks, IErrorCallbacks } from './types';
 
 export default class ConnectionManager extends EventsDispatcher {
   options: ISFSocketConfig;
@@ -37,9 +21,9 @@ export default class ConnectionManager extends EventsDispatcher {
 
   runner: IRunner | null;
 
-  errorCallbacks: ErrorCallbacks;
+  errorCallbacks: IErrorCallbacks;
 
-  connectionCallbacks: ConnectionCallbacks;
+  connectionCallbacks: IConnectionCallbacks;
 
   constructor(options : ISFSocketConfig) {
     super();
@@ -160,7 +144,7 @@ export default class ConnectionManager extends EventsDispatcher {
     this.unavailableTimer = 0;
   }
 
-  private buildConnectionCallbacks(errorCallbacks: ErrorCallbacks) : ConnectionCallbacks {
+  private buildConnectionCallbacks(errorCallbacks: IErrorCallbacks) : IConnectionCallbacks {
     return {
       ...errorCallbacks,
       message: (socketEvent: ISFSocketEvent) => {
@@ -181,8 +165,8 @@ export default class ConnectionManager extends EventsDispatcher {
     };
   }
 
-  private buildErrorCallbacks() : ErrorCallbacks {
-    const withErrorEmitted = (callback: Function) => (result: Action) => {
+  private buildErrorCallbacks() : IErrorCallbacks {
+    const withErrorEmitted = (callback: Function) => (result: IAction) => {
       if (result.error) {
         this.emit('error', {
           type: 'sfSocket:error',
