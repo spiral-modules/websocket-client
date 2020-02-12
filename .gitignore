@@ -5,3 +5,4 @@ typings/*
 .env
 npm-debug.log
 .phpstorm.meta.php/
+tsconfig.tsbuildinfo

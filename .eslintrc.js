@@ -1,11 +1,12 @@
 module.exports = {
   settings: {
     "import/resolver": {
-      "node": {
-        "extensions": [".js", ".ts"]
-      }
-    }
+       "node": {
+         "extensions": [".js", ".ts"]
+       }
+     }
   },
+  ignorePatterns: ["*.d.ts"],
   env: {
     browser: true,
     es6: true,
@@ -26,6 +27,8 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error",
     "import/extensions": [
       "error",
       "ignorePackages",
@@ -35,12 +38,4 @@ module.exports = {
       }
     ]
   },
-  overrides: [
-    {
-      files: ['*.ts', '*.tsx'],
-      rules: {
-        '@typescript-eslint/no-unused-vars': [2, { args: 'none' }]
-      }
-    }
-  ]
 };
