@@ -82,7 +82,9 @@ describe('sfSocket subscriptions', () => {
 
   test('sfSocket error callback should be called', async () => {
     const websocketCallback = jest.fn();
-    const consoleError = console.error = jest.fn();
+    const consoleError = jest.fn();
+    // eslint-disable-next-line no-console
+    console.error = consoleError;
 
     const Server = new WS(serverUrl);
     const ClientSocket = new SFSocket(socketOptions);
