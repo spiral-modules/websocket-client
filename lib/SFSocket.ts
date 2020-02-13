@@ -2,6 +2,7 @@ import Channel from './Channel';
 import EventsDispatcher from './EventsDispatcher';
 import ConnectionManager from './connection/ConnectionManager';
 import { defaultConfig, STORAGE_KEY } from './constants';
+import { EventType } from './events';
 
 const CONNECTION_EVENTS = {
   JOIN: 'join',
@@ -75,25 +76,25 @@ export class SFSocket {
 
     this.connection = new ConnectionManager(this.config);
 
-    this.connection.bind('connected', () => {
+    this.connection.bind(EventType.CONNECTED, () => {
       Object.keys(this.channels).forEach((channelName) => {
         this.subscribeChannel(channelName);
       });
     });
 
-    this.connection.bind('message', (event: any) => {
-      this.eventsDispatcher.emit('message', event);
+    this.connection.bind(EventType.MESSAGE, (event: any) => {
+      this.eventsDispatcher.emit(EventType.MESSAGE, event);
     });
 
-    this.connection.bind('connecting', () => {
+    this.connection.bind(EventType.CONNECTING, () => {
       this.channelsDisconnect();
     });
 
-    this.connection.bind('disconnected', () => {
+    this.connection.bind(EventType.DISCONNECTED, () => {
       this.channelsDisconnect();
     });
 
-    this.connection.bind('error', (err: Error) => {
+    this.connection.bind(EventType.ERROR, (err: Error) => {
       console.error(err); // eslint-disable-line no-console
     });
 
@@ -154,11 +155,11 @@ export class SFSocket {
     });
   }
 
-  subscribe(eventName: string, data: any, channel?: string) { // TODO
+  subscribe(eventName: EventType, data: any, channel?: string) { // TODO
     return this.connection.bind(eventName, data, channel);
   }
 
-  unsubscribe(eventName: string, data: any, channel?: string) { // TODO
+  unsubscribe(eventName: EventType, data: any, channel?: string) { // TODO
     return this.connection.unbind(eventName, data, channel);
   }
 

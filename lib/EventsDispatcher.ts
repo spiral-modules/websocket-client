@@ -1,5 +1,6 @@
 import CallbackRegistry from './CallbackRegistry';
 import { ISFSocketEvent } from './SFSocket';
+import { EventType } from './events';
 
 
 export default class EventsDispatcher {
@@ -9,17 +10,17 @@ export default class EventsDispatcher {
     this.callbacks = new CallbackRegistry();
   }
 
-  bind(eventName : string, callback : Function, channel?: string) {
+  bind(eventName : EventType, callback : Function, channel?: string) {
     this.callbacks.add(eventName, callback, channel);
     return this;
   }
 
-  unbind(eventName : string, callback : Function, channel?: string) {
+  unbind(eventName : EventType, callback : Function, channel?: string) {
     this.callbacks.remove(eventName, callback, channel);
     return this;
   }
 
-  emit(eventName : string, event?: ISFSocketEvent) : EventsDispatcher {
+  emit(eventName : EventType, event?: ISFSocketEvent) : EventsDispatcher {
     const callbacks = this.callbacks.get(eventName);
 
     const channelEvent: string | null | undefined = event && event.context

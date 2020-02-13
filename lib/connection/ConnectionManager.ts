@@ -3,6 +3,7 @@ import Transport, { IRunner, ITransport } from '../Transport';
 import Connection from './Connection';
 import { ISFSocketConfig, ISFSocketEvent } from '../SFSocket';
 import { IAction, IConnectionCallbacks, IErrorCallbacks } from './types';
+import { EventType } from '../events';
 
 export default class ConnectionManager extends EventsDispatcher {
   options: ISFSocketConfig;
@@ -107,7 +108,7 @@ export default class ConnectionManager extends EventsDispatcher {
 
   private retryIn(delay: number) {
     if (delay > 0) {
-      this.emit('connecting', {
+      this.emit(EventType.CONNECTING, {
         type: 'sfSocket:connecting',
         data: String(Math.round(delay / 1000)),
         error: null,
@@ -131,7 +132,7 @@ export default class ConnectionManager extends EventsDispatcher {
   private setUnavailableTimer() {
     this.unavailableTimer = setTimeout(
       () => {
-        this.updateState('unavailable');
+        this.updateState('unavailable'); // TODO: what is this?
       },
       this.options.unavailableTimeout,
     );
@@ -149,18 +150,18 @@ export default class ConnectionManager extends EventsDispatcher {
       ...errorCallbacks,
       message: (socketEvent: ISFSocketEvent) => {
       // includes pong messages from server
-        this.emit('message', socketEvent);
+        this.emit(EventType.MESSAGE, socketEvent);
       },
       error: (errorEvent: ISFSocketEvent) => {
       // just emit error to user - socket will already be closed by browser
-        this.emit('error', errorEvent);
+        this.emit(EventType.ERROR, errorEvent);
       },
       closed: (closeEvent: ISFSocketEvent) => {
         this.abandonConnection();
         if (this.shouldRetry()) {
           this.retryIn(1000);
         }
-        this.emit('closed', closeEvent);
+        this.emit(EventType.CLOSED, closeEvent);
       },
     };
   }
@@ -168,7 +169,7 @@ export default class ConnectionManager extends EventsDispatcher {
   private buildErrorCallbacks() : IErrorCallbacks {
     const withErrorEmitted = (callback: Function) => (result: IAction) => {
       if (result.error) {
-        this.emit('error', {
+        this.emit(EventType.ERROR, {
           type: 'sfSocket:error',
           data: null,
           error: result.error,
@@ -192,18 +193,18 @@ export default class ConnectionManager extends EventsDispatcher {
     if (!this.connection) {
       return;
     }
-    this.connection.bind('message', this.connectionCallbacks.message);
-    this.connection.bind('error', this.connectionCallbacks.error);
-    this.connection.bind('closed', this.connectionCallbacks.closed);
+    this.connection.bind(EventType.MESSAGE, this.connectionCallbacks.message);
+    this.connection.bind(EventType.ERROR, this.connectionCallbacks.error);
+    this.connection.bind(EventType.CLOSED, this.connectionCallbacks.closed);
   }
 
   private abandonConnection() {
     if (!this.connection) {
       return null;
     }
-    this.connection.unbind('message', this.connectionCallbacks.message);
-    this.connection.unbind('error', this.connectionCallbacks.error);
-    this.connection.unbind('closed', this.connectionCallbacks.closed);
+    this.connection.unbind(EventType.MESSAGE, this.connectionCallbacks.message);
+    this.connection.unbind(EventType.ERROR, this.connectionCallbacks.error);
+    this.connection.unbind(EventType.CLOSED, this.connectionCallbacks.closed);
 
     const { connection } = this;
     this.connection = null;

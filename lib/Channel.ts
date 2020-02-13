@@ -1,5 +1,6 @@
 import EventsDispatcher from './EventsDispatcher';
 import { SFSocket } from './SFSocket';
+import { EventType } from './events';
 
 export default class Channel extends EventsDispatcher {
   name: string;
@@ -37,11 +38,11 @@ export default class Channel extends EventsDispatcher {
     this.socket.joinChannel(this.name);
   }
 
-  subscribe(eventName: string, data: any) { // TODO
+  subscribe(eventName: EventType, data: any) { // TODO
     this.socket.subscribe(eventName, data, this.name);
   }
 
-  unsubscribe(eventName: string, data: any) { // TODO
+  unsubscribe(eventName: EventType, data: any) { // TODO
     this.socket.unsubscribe(eventName, data, this.name);
   }
 

@@ -2,6 +2,7 @@ import EventsDispatcher from '../EventsDispatcher';
 import { ISFSocketEvent } from '../SFSocket';
 import TransportConnection from '../TransportConnection';
 import { decodeMessage, encodeMessage, prepareCloseAction } from '../messageCodingUtils';
+import { EventType } from '../events';
 
 export default class Connection extends EventsDispatcher {
   id: string;
@@ -43,9 +44,9 @@ export default class Connection extends EventsDispatcher {
   private bindListeners() {
     const unbindListeners = (listeners: any) => { // TODO
       if (!this.transport) return;
-      this.transport.unbind('message', listeners.message);
-      this.transport.unbind('error', listeners.error);
-      this.transport.unbind('closed', listeners.closed);
+      this.transport.unbind(EventType.MESSAGE, listeners.message);
+      this.transport.unbind(EventType.ERROR, listeners.error);
+      this.transport.unbind(EventType.CLOSED, listeners.closed);
     };
 
     const listeners = {
@@ -54,7 +55,7 @@ export default class Connection extends EventsDispatcher {
         try {
           sfSocketEvent = decodeMessage(messageEvent.data);
         } catch (e) {
-          this.emit('error', {
+          this.emit(EventType.ERROR, {
             type: 'MessageParseError',
             error: e,
             data: typeof messageEvent === 'string' ? messageEvent : JSON.stringify(messageEvent),
@@ -63,18 +64,18 @@ export default class Connection extends EventsDispatcher {
 
         if (sfSocketEvent) {
           if (sfSocketEvent.type === 'sfSocket:error') {
-            this.emit('error', {
+            this.emit(EventType.ERROR, {
               type: 'sfSocket:error',
               data: sfSocketEvent.data,
               error: null,
             });
           } else {
-            this.emit('message', sfSocketEvent);
+            this.emit(EventType.MESSAGE, sfSocketEvent);
           }
         }
       },
       error: (error: string) => { // TODO
-        this.emit('error', {
+        this.emit(EventType.ERROR, {
           type: 'sfSocket:error',
           error,
           data: null,
@@ -88,23 +89,23 @@ export default class Connection extends EventsDispatcher {
         }
 
         this.transport = null;
-        this.emit('closed');
+        this.emit(EventType.CLOSED);
       },
     };
 
     if (!this.transport) return;
-    this.transport.bind('message', listeners.message);
-    this.transport.bind('error', listeners.error);
-    this.transport.bind('closed', listeners.closed);
+    this.transport.bind(EventType.MESSAGE, listeners.message);
+    this.transport.bind(EventType.ERROR, listeners.error);
+    this.transport.bind(EventType.CLOSED, listeners.closed);
   }
 
   private handleCloseEvent(closeEvent : ISFSocketEvent) {
     const action = prepareCloseAction(closeEvent);
 
     if (action.type === 'sfSocket:closed') {
-      this.emit('close', action);
+      this.emit(EventType.CLOSED, action);
     } else {
-      this.emit('error', action);
+      this.emit(EventType.ERROR, action);
     }
   }
 }

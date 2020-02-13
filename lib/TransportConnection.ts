@@ -1,5 +1,6 @@
 import EventsDispatcher from './EventsDispatcher';
 import { ISFSocketConfig, ISFSocketEvent } from './SFSocket';
+import { EventType } from './events';
 
 export interface ITransportHooks {
   url: string;
@@ -24,7 +25,7 @@ export default class TransportConnection extends EventsDispatcher {
       const self = this;
 
       if (self.hooks.isInitialized()) {
-        self.changeState('initialized');
+        self.changeState(EventType.INITIALIZED);
       } else {
         self.onClose();
       }
@@ -47,13 +48,13 @@ export default class TransportConnection extends EventsDispatcher {
       // Workaround for MobileSafari bug (see https://gist.github.com/2052006)
       setTimeout(() => {
         this.onError(e);
-        this.changeState('closed');
+        this.changeState(EventType.CLOSED);
       });
       return false;
     }
 
     this.bindListeners();
-    this.changeState('connecting');
+    this.changeState(EventType.CONNECTING);
     return true;
   }
 
@@ -92,13 +93,13 @@ export default class TransportConnection extends EventsDispatcher {
 
 
   private onOpen() {
-    this.changeState('open');
+    this.changeState(EventType.OPEN);
     if (!this.socket) return;
     this.socket.onopen = null;
   }
 
   private onError(error?: string) {
-    this.emit('error', {
+    this.emit(EventType.ERROR, {
       type: 'sfSocket:error',
       error: error || 'websocket connection error',
       data: null,
@@ -107,7 +108,7 @@ export default class TransportConnection extends EventsDispatcher {
 
   private onClose(closeEvent?: CloseEvent) {
     if (closeEvent) {
-      this.changeState('closed', {
+      this.changeState(EventType.CLOSED, {
         type: closeEvent.wasClean ? 'sfSocket:closed' : 'sfSocket:error',
         data: closeEvent.wasClean ? closeEvent.reason : null,
         error: closeEvent.wasClean ? null : closeEvent.reason,
@@ -116,14 +117,14 @@ export default class TransportConnection extends EventsDispatcher {
         },
       });
     } else {
-      this.changeState('closed');
+      this.changeState(EventType.CLOSED);
     }
     this.unbindListeners();
     this.socket = undefined;
   }
 
   private onMessage(message: MessageEvent) {
-    this.emit('message', {
+    this.emit(EventType.MESSAGE, {
       type: 'sfSocket:message',
       data: typeof message.data === 'string' ? message.data : JSON.stringify(message.data),
       error: null,
@@ -146,7 +147,7 @@ export default class TransportConnection extends EventsDispatcher {
     };
   }
 
-  private changeState(state : string, params?: ISFSocketEvent) {
+  private changeState(state: EventType, params?: ISFSocketEvent) {
     this.state = state;
     this.emit(state, params);
   }

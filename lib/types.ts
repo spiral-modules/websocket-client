@@ -1,8 +1,8 @@
+import { EventType } from 'events';
+
 export interface ICallback {
     fn: Function;
     channel: string | null;
 }
 
-export interface ICallbackTable {
-    [index: string]: ICallback[];
-}
+export type ICallbackTable = {[key in EventType]: ICallback[]};

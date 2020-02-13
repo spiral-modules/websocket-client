@@ -1,35 +1,47 @@
 import { ICallback, ICallbackTable } from './types';
+import { EventType } from './events';
 
-const prefix = (name: string) => `sf:${name}`;
+const allTypes = [
+  EventType.MESSAGE,
+  EventType.ERROR,
+  EventType.CONNECTED,
+  EventType.DISCONNECTED,
+  EventType.CONNECTING,
+];
 
 export default class CallbackRegistry {
-    callbacks: ICallbackTable;
+    callbacks: ICallbackTable = {
+      [EventType.MESSAGE]: [],
+      [EventType.ERROR]: [],
+      [EventType.CONNECTED]: [],
+      [EventType.DISCONNECTED]: [],
+      [EventType.CONNECTING]: [],
+    };
 
-    constructor() {
-      this.callbacks = {};
+    get(name: EventType): ICallback[] {
+      return this.callbacks[name];
     }
 
-    get(name: string): ICallback[] {
-      return this.callbacks[prefix(name)];
-    }
-
-    add(name: string, callback: Function, channel?: string) {
-      const prefixedEventName = prefix(name);
-
-      this.callbacks[prefixedEventName] = this.callbacks[prefixedEventName] || [];
-      this.callbacks[prefixedEventName].push({
+    add(name: EventType, callback: Function, channel?: string) {
+      this.callbacks[name].push({
         fn: callback,
         channel: channel || null,
       });
     }
 
-    remove(name?: string, callback?: Function, channel?: string) {
+    remove(name: EventType, callback?: Function, channel?: string) {
       if (!name && !callback && !channel) {
-        this.callbacks = {};
+        this.callbacks = {
+          [EventType.MESSAGE]: [],
+          [EventType.ERROR]: [],
+          [EventType.CONNECTED]: [],
+          [EventType.DISCONNECTED]: [],
+          [EventType.CONNECTING]: [],
+        };
         return;
       }
 
-      const names = name ? [prefix(name)] : Object.keys(this.callbacks);
+      const names = name ? [name] : allTypes;
 
       if (callback || channel) {
         this.removeCallback(names, callback, channel);
@@ -38,27 +50,22 @@ export default class CallbackRegistry {
       }
     }
 
-    private removeCallback(names: string[], callback?: Function, channel?: string) {
+    private removeCallback(names: EventType[], callback?: Function, channel?: string) {
       names.forEach((name) => {
         const callbacks = this.callbacks[name] || [];
-
         this.callbacks[name] = callbacks.filter(
           (existedCallback: ICallback) => {
             const isEqualCallback = callback && callback === existedCallback.fn;
             const isEqualChannel = channel && channel === existedCallback.channel;
-
             return !isEqualCallback && !isEqualChannel;
           },
         );
-        if (this.callbacks[name].length === 0) {
-          delete this.callbacks[name];
-        }
       });
     }
 
-    private removeAllCallbacks(names: string[]) {
+    private removeAllCallbacks(names: EventType[]) {
       names.forEach((name) => {
-        delete this.callbacks[name];
+        this.callbacks[name] = [];
       });
     }
 }
