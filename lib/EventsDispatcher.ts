@@ -1,3 +1,4 @@
+import { CallbackFunction } from './types';
 import CallbackRegistry from './CallbackRegistry';
 import { ISFSocketEvent } from './SFSocket';
 import { EventType } from './events';
@@ -10,12 +11,12 @@ export default class EventsDispatcher {
     this.callbacks = new CallbackRegistry();
   }
 
-  bind(eventName : EventType, callback : Function, channel?: string) {
+  bind(eventName: EventType, callback: CallbackFunction, channel?: string) {
     this.callbacks.add(eventName, callback, channel);
     return this;
   }
 
-  unbind(eventName : EventType, callback : Function, channel?: string) {
+  unbind(eventName: EventType, callback: CallbackFunction, channel?: string) {
     this.callbacks.remove(eventName, callback, channel);
     return this;
   }

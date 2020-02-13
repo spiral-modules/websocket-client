@@ -1,14 +1,36 @@
+import { CallbackFunction } from '../types';
+import {
+  IAction,
+  IConnectionCallbacks,
+  IErrorCallbacks,
+} from './types';
 import EventsDispatcher from '../EventsDispatcher';
 import Transport, { IRunner, ITransport } from '../Transport';
 import Connection from './Connection';
 import { ISFSocketConfig, ISFSocketEvent } from '../SFSocket';
-import { IAction, IConnectionCallbacks, IErrorCallbacks } from './types';
+
 import { EventType } from '../events';
+
+export enum ConnectionState {
+  INITIALIZED = 'initialized',
+  CONNECTING = 'connecting',
+  DISCONNECTED = 'disconnected',
+  CONNECTED = 'connected',
+  UNAVAILABLE = 'unavailable',
+}
+
+export const StateToEvent: {[key in ConnectionState]: EventType} = {
+  [ConnectionState.INITIALIZED]: EventType.INITIALIZED,
+  [ConnectionState.CONNECTING]: EventType.CONNECTING,
+  [ConnectionState.CONNECTED]: EventType.CONNECTED,
+  [ConnectionState.DISCONNECTED]: EventType.DISCONNECTED,
+  [ConnectionState.UNAVAILABLE]: EventType.UNAVAILABLE,
+};
 
 export default class ConnectionManager extends EventsDispatcher {
   options: ISFSocketConfig;
 
-  state: string;
+  state: ConnectionState;
 
   connection: Connection | null;
 
@@ -29,7 +51,7 @@ export default class ConnectionManager extends EventsDispatcher {
   constructor(options : ISFSocketConfig) {
     super();
     this.options = options || {};
-    this.state = 'initialized';
+    this.state = ConnectionState.INITIALIZED;
     this.connection = null;
     this.usingTLS = Boolean(options.useTLS);
 
@@ -50,7 +72,7 @@ export default class ConnectionManager extends EventsDispatcher {
     if (this.connection || this.runner) {
       return;
     }
-    this.updateState('connecting');
+    this.updateState(ConnectionState.CONNECTING);
     this.startConnecting();
     this.setUnavailableTimer();
   }
@@ -71,11 +93,11 @@ export default class ConnectionManager extends EventsDispatcher {
 
   disconnect() {
     this.disconnectInternally();
-    this.updateState('disconnected');
+    this.updateState(ConnectionState.DISCONNECTED);
   }
 
   private startConnecting() {
-    const callback = (error: any, connection: Connection) => { // TODO
+    const callback: CallbackFunction = (error: Error | undefined | null, connection: Connection) => { // TODO
       if (error) {
         this.runner = this.transport.connect(callback);
       } else {
@@ -83,7 +105,7 @@ export default class ConnectionManager extends EventsDispatcher {
 
         this.clearUnavailableTimer();
         this.setConnection(connection);
-        this.updateState('connected');
+        this.updateState(ConnectionState.CONNECTED);
       }
     };
     this.runner = this.transport.connect(callback);
@@ -132,7 +154,7 @@ export default class ConnectionManager extends EventsDispatcher {
   private setUnavailableTimer() {
     this.unavailableTimer = setTimeout(
       () => {
-        this.updateState('unavailable'); // TODO: what is this?
+        this.updateState(ConnectionState.UNAVAILABLE);
       },
       this.options.unavailableTimeout,
     );
@@ -167,7 +189,7 @@ export default class ConnectionManager extends EventsDispatcher {
   }
 
   private buildErrorCallbacks() : IErrorCallbacks {
-    const withErrorEmitted = (callback: Function) => (result: IAction) => {
+    const withErrorEmitted = (callback: CallbackFunction) => (result: IAction) => {
       if (result.error) {
         this.emit(EventType.ERROR, {
           type: 'sfSocket:error',
@@ -212,15 +234,15 @@ export default class ConnectionManager extends EventsDispatcher {
     return connection;
   }
 
-  private updateState(newState : string) {
+  private updateState(newState : ConnectionState) {
     const previousState = this.state;
     this.state = newState;
     if (previousState !== newState) {
-      this.emit(newState);
+      this.emit(StateToEvent[newState]);
     }
   }
 
   private shouldRetry() : boolean {
-    return this.state === 'connecting' || this.state === 'connected';
+    return this.state === ConnectionState.CONNECTING || this.state === ConnectionState.CONNECTED;
   }
 }

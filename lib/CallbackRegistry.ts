@@ -1,4 +1,4 @@
-import { ICallback, ICallbackTable } from './types';
+import { CallbackFunction, ICallback, ICallbackTable } from './types';
 import { EventType } from './events';
 
 const allTypes = [
@@ -7,6 +7,9 @@ const allTypes = [
   EventType.CONNECTED,
   EventType.DISCONNECTED,
   EventType.CONNECTING,
+  EventType.OPEN,
+  EventType.CLOSED,
+  EventType.UNAVAILABLE,
 ];
 
 export default class CallbackRegistry {
@@ -16,20 +19,24 @@ export default class CallbackRegistry {
       [EventType.CONNECTED]: [],
       [EventType.DISCONNECTED]: [],
       [EventType.CONNECTING]: [],
+      [EventType.INITIALIZED]: [],
+      [EventType.UNAVAILABLE]: [],
+      [EventType.OPEN]: [],
+      [EventType.CLOSED]: [],
     };
 
     get(name: EventType): ICallback[] {
       return this.callbacks[name];
     }
 
-    add(name: EventType, callback: Function, channel?: string) {
+    add(name: EventType, callback: CallbackFunction, channel?: string) {
       this.callbacks[name].push({
         fn: callback,
         channel: channel || null,
       });
     }
 
-    remove(name: EventType, callback?: Function, channel?: string) {
+    remove(name: EventType, callback?: CallbackFunction, channel?: string) {
       if (!name && !callback && !channel) {
         this.callbacks = {
           [EventType.MESSAGE]: [],
@@ -37,6 +44,10 @@ export default class CallbackRegistry {
           [EventType.CONNECTED]: [],
           [EventType.DISCONNECTED]: [],
           [EventType.CONNECTING]: [],
+          [EventType.INITIALIZED]: [],
+          [EventType.UNAVAILABLE]: [],
+          [EventType.OPEN]: [],
+          [EventType.CLOSED]: [],
         };
         return;
       }
@@ -50,7 +61,7 @@ export default class CallbackRegistry {
       }
     }
 
-    private removeCallback(names: EventType[], callback?: Function, channel?: string) {
+    private removeCallback(names: EventType[], callback?: CallbackFunction, channel?: string) {
       names.forEach((name) => {
         const callbacks = this.callbacks[name] || [];
         this.callbacks[name] = callbacks.filter(

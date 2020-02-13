@@ -1,7 +1,8 @@
 /* eslint-disable no-new */
 import WS from 'jest-websocket-mock';
+import { EventType } from '../events';
 import { SFSocket } from '../index';
-import { socketOptions, makeTestSocketUrl } from '../mock-data';
+import { makeTestSocketUrl, socketOptions } from '../mock-data';
 
 const serverMessage = JSON.stringify({ topic: 'message', payload: 'test' });
 const clientMessage = {
@@ -29,7 +30,7 @@ describe('sfSocket subscriptions', () => {
 
     SFSocket.ready();
 
-    ClientSocket.subscribe('connected', websocketCallback);
+    ClientSocket.subscribe(EventType.CONNECTED, websocketCallback);
 
     await Server.connected;
 
@@ -45,7 +46,7 @@ describe('sfSocket subscriptions', () => {
     const ClientSocket = new SFSocket(socketOptions);
     SFSocket.ready();
 
-    ClientSocket.subscribe('message', websocketCallback);
+    ClientSocket.subscribe(EventType.MESSAGE, websocketCallback);
 
     await Server.connected;
 
@@ -64,7 +65,7 @@ describe('sfSocket subscriptions', () => {
     const ClientSocket = new SFSocket(socketOptions);
     SFSocket.ready();
 
-    ClientSocket.subscribe('message', websocketCallback);
+    ClientSocket.subscribe(EventType.MESSAGE, websocketCallback);
 
     await Server.connected;
 
@@ -90,7 +91,7 @@ describe('sfSocket subscriptions', () => {
     const ClientSocket = new SFSocket(socketOptions);
     SFSocket.ready();
 
-    ClientSocket.subscribe('error', websocketCallback);
+    ClientSocket.subscribe(EventType.ERROR, websocketCallback);
 
     await Server.connected;
 
@@ -112,7 +113,7 @@ describe('sfSocket subscriptions', () => {
     const ClientSocket = new SFSocket(socketOptions);
     SFSocket.ready();
 
-    ClientSocket.subscribe('closed', socketCallback);
+    ClientSocket.subscribe(EventType.CLOSED, socketCallback);
 
     await Server.connected;
 
@@ -120,7 +121,7 @@ describe('sfSocket subscriptions', () => {
 
     Server.close();
 
-    expect(socketCallback.mock.calls[0][0]).toBeUndefined();
     expect(socketCallback).toHaveBeenCalledTimes(1);
+    expect(socketCallback.mock.calls[0][0]).toBeUndefined();
   });
 });

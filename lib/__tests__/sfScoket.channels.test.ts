@@ -1,7 +1,8 @@
 /* eslint-disable no-new */
 import WS from 'jest-websocket-mock';
+import { EventType } from '../events';
 import { SFSocket } from '../index';
-import { socketOptions, makeTestSocketUrl } from '../mock-data';
+import { makeTestSocketUrl, socketOptions } from '../mock-data';
 
 const serverUrl = makeTestSocketUrl(socketOptions);
 const clientMessage = {
@@ -43,7 +44,7 @@ describe('sfSocket channels', () => {
     SFSocket.ready();
 
     const testChannel = ClientSocket.channel('testChannel');
-    testChannel.subscribe('connected', websocketCallback);
+    testChannel.subscribe(EventType.CONNECTED, websocketCallback);
 
     expect(websocketCallback).toHaveBeenCalledTimes(0);
 
@@ -66,15 +67,15 @@ describe('sfSocket channels', () => {
     await Server.connected;
 
     const SocketChannel = ClientSocket.channel('testChannel');
-    SocketChannel.subscribe('message', channelCallback);
+    SocketChannel.subscribe(EventType.MESSAGE, channelCallback);
 
 
     expect(channelCallback).toHaveBeenCalledTimes(0);
 
     Server.send({ topic: 'testChannel', payload: 'message' });
 
-    expect(channelCallback.mock.calls[0][0]).toEqual(clientMessage);
     expect(channelCallback).toHaveBeenCalledTimes(1);
+    expect(channelCallback.mock.calls[0][0]).toEqual(clientMessage);
 
     Server.close();
   });
@@ -87,7 +88,7 @@ describe('sfSocket channels', () => {
     SFSocket.ready();
 
     const testChannel = ClientSocket.channel('testChannel');
-    testChannel.subscribe('closed', channelCallback);
+    testChannel.subscribe(EventType.CLOSED, channelCallback);
 
     await Server.connected;
 
@@ -110,7 +111,7 @@ describe('sfSocket channels', () => {
     SFSocket.ready();
 
     const testChannel = ClientSocket.channel('testChannel');
-    testChannel.subscribe('error', channelCallback);
+    testChannel.subscribe(EventType.ERROR, channelCallback);
 
     await Server.connected;
 

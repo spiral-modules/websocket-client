@@ -1,8 +1,9 @@
+import { CallbackFunction } from './types';
 import Channel from './Channel';
-import EventsDispatcher from './EventsDispatcher';
-import ConnectionManager from './connection/ConnectionManager';
+import ConnectionManager, { ConnectionState } from './connection/ConnectionManager';
 import { defaultConfig, STORAGE_KEY } from './constants';
 import { EventType } from './events';
+import EventsDispatcher from './EventsDispatcher';
 
 const CONNECTION_EVENTS = {
   JOIN: 'join',
@@ -138,7 +139,7 @@ export class SFSocket {
 
   listen(channelsNames: string[]) {
     channelsNames.forEach((channelsName) => {
-      if (this.connection.state === 'connected') {
+      if (this.connection.state === ConnectionState.CONNECTED) {
         this.joinChannel(channelsName);
       } else {
         this.subscribeChannel(channelsName);
@@ -149,18 +150,18 @@ export class SFSocket {
   stopListen(channelNames: string[]) {
     channelNames.forEach((channelName) => {
       const removedChannel = this.removeChannel(channelName);
-      if (removedChannel && this.connection.state === 'connected') {
+      if (removedChannel && this.connection.state === ConnectionState.CONNECTED) {
         removedChannel.leaveChannel();
       }
     });
   }
 
-  subscribe(eventName: EventType, data: any, channel?: string) { // TODO
-    return this.connection.bind(eventName, data, channel);
+  subscribe(eventName: EventType, callback: CallbackFunction, channel?: string) { // TODO
+    return this.connection.bind(eventName, callback, channel);
   }
 
-  unsubscribe(eventName: EventType, data: any, channel?: string) { // TODO
-    return this.connection.unbind(eventName, data, channel);
+  unsubscribe(eventName: EventType, callback: CallbackFunction, channel?: string) { // TODO
+    return this.connection.unbind(eventName, callback, channel);
   }
 
   // channels
@@ -204,7 +205,7 @@ export class SFSocket {
 
     if (channel.subscriptionCancelled) {
       channel.reinstateSubscription();
-    } else if (this.connection.state === 'connected') {
+    } else if (this.connection.state === ConnectionState.CONNECTED) {
       channel.join();
     }
     return channel;

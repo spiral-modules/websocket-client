@@ -7,4 +7,5 @@ export enum EventType {
   OPEN='open',
   INITIALIZED='initialized',
   CLOSED='closed',
+  UNAVAILABLE='unavailable',
 }

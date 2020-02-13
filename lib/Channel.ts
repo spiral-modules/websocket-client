@@ -1,3 +1,4 @@
+import { CallbackFunction } from './types';
 import EventsDispatcher from './EventsDispatcher';
 import { SFSocket } from './SFSocket';
 import { EventType } from './events';
@@ -11,7 +12,7 @@ export default class Channel extends EventsDispatcher {
 
   subscriptionCancelled: boolean;
 
-  constructor(name : string, socket: SFSocket) {
+  constructor(name: string, socket: SFSocket) {
     super();
 
     this.name = name;
@@ -20,7 +21,7 @@ export default class Channel extends EventsDispatcher {
     this.subscriptionCancelled = false;
   }
 
-  trigger(event : string, data : any) { // TODO
+  trigger(event: string, data: string[]) { // TODO
     if (!this.subscribed) {
       console.warn('Client event triggered before channel \'subscription_succeeded\' event'); // eslint-disable-line no-console
     }
@@ -38,12 +39,12 @@ export default class Channel extends EventsDispatcher {
     this.socket.joinChannel(this.name);
   }
 
-  subscribe(eventName: EventType, data: any) { // TODO
-    this.socket.subscribe(eventName, data, this.name);
+  subscribe(eventName: EventType, callback: CallbackFunction) {
+    this.socket.subscribe(eventName, callback, this.name);
   }
 
-  unsubscribe(eventName: EventType, data: any) { // TODO
-    this.socket.unsubscribe(eventName, data, this.name);
+  unsubscribe(eventName: EventType, callback: CallbackFunction) {
+    this.socket.unsubscribe(eventName, callback, this.name);
   }
 
   leaveChannel() {

@@ -1,3 +1,4 @@
+import { EventType } from '../events';
 import { SFSocket } from '../index';
 import { socketOptions } from '../mock-data';
 
@@ -64,18 +65,18 @@ describe('sfSocket connections', () => {
     SFSocket.ready();
 
     const connectionCallbacksKeys = [
-      'sf:connected',
-      'sf:message',
-      'sf:connecting',
-      'sf:disconnected',
-      'sf:error',
+      EventType.CONNECTED,
+      EventType.MESSAGE,
+      EventType.CONNECTING,
+      EventType.DISCONNECTED,
+      EventType.ERROR,
     ];
 
     const wsConnectionCallbacks = ws.connection.callbacks.callbacks;
 
     expect(wsConnectionCallbacks).not.toBeUndefined();
 
-    connectionCallbacksKeys.forEach((key) => {
+    connectionCallbacksKeys.forEach((key: EventType) => {
       expect(wsConnectionCallbacks[key]).not.toBeUndefined();
     });
   });

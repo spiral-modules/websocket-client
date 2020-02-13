@@ -21,7 +21,7 @@ export default class Connection extends EventsDispatcher {
     return this.transport.send(data);
   }
 
-  sendEvent(name : string, data : any, channel?: string) : boolean {
+  sendEvent(name: string, data: any, channel?: string) : boolean {
     const event: ISFSocketEvent = {
       type: name,
       data,

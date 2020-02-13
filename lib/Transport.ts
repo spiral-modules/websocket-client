@@ -1,3 +1,4 @@
+import { CallbackFunction } from './types';
 import Connection from './connection/Connection';
 import TransportConnection, { ITransportHooks } from './TransportConnection';
 import { ISFSocketConfig } from './SFSocket';
@@ -8,7 +9,7 @@ export interface IRunner {
 }
 
 export interface ITransport {
-  connect(callback: Function): IRunner;
+  connect(callback: CallbackFunction): IRunner;
 }
 
 export default class Transport implements ITransport {
@@ -38,7 +39,7 @@ export default class Transport implements ITransport {
     this.name = name;
   }
 
-  connect(callback: Function) {
+  connect(callback: CallbackFunction) {
     let connected = false;
 
     const transport = new TransportConnection(
