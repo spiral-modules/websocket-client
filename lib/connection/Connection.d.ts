@@ -1,7 +1,5 @@
-import EventsDispatcher from './eventsDispatcher';
-import { ISFSocketEvent } from './sfSocket';
-import TransportConnection from './transportConnection';
-export declare const decodeMessage: (messageEvent: string) => ISFSocketEvent;
+import EventsDispatcher from '../EventsDispatcher';
+import TransportConnection from '../TransportConnection';
 export default class Connection extends EventsDispatcher {
     id: string;
     transport: TransportConnection | null;
@@ -12,4 +10,3 @@ export default class Connection extends EventsDispatcher {
     private bindListeners;
     private handleCloseEvent;
 }
-//# sourceMappingURL=connection.d.ts.map

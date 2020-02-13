@@ -1,21 +1,8 @@
-import EventsDispatcher from './eventsDispatcher';
-import { IRunner, ITransport } from './transport';
-import Connection from './connection';
-import { ISFSocketConfig } from './sfSocket';
-interface Action {
-    action: string;
-    id?: string;
-    error?: any;
-}
-export interface ErrorCallbacks {
-    refused: (result: Action) => void;
-    unavailable: (result: Action) => void;
-}
-export interface ConnectionCallbacks {
-    message: (message: any) => void;
-    error: (error: any) => void;
-    closed: (reason: any) => void;
-}
+import EventsDispatcher from '../EventsDispatcher';
+import { IRunner, ITransport } from '../Transport';
+import Connection from './Connection';
+import { ISFSocketConfig } from '../SFSocket';
+import { IConnectionCallbacks, IErrorCallbacks } from './types';
 export default class ConnectionManager extends EventsDispatcher {
     options: ISFSocketConfig;
     state: string;
@@ -25,8 +12,8 @@ export default class ConnectionManager extends EventsDispatcher {
     retryTimer: number;
     transport: ITransport;
     runner: IRunner | null;
-    errorCallbacks: ErrorCallbacks;
-    connectionCallbacks: ConnectionCallbacks;
+    errorCallbacks: IErrorCallbacks;
+    connectionCallbacks: IConnectionCallbacks;
     constructor(options: ISFSocketConfig);
     connect(): void;
     send(data: string): boolean;
@@ -46,5 +33,3 @@ export default class ConnectionManager extends EventsDispatcher {
     private updateState;
     private shouldRetry;
 }
-export {};
-//# sourceMappingURL=connectionManager.d.ts.map
