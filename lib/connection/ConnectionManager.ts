@@ -1,4 +1,4 @@
-import { CallbackFunction } from '../types';
+import { UndescribedCallbackFunction } from '../types';
 import {
   IAction,
   IConnectionCallbacks,
@@ -97,7 +97,7 @@ export default class ConnectionManager extends EventsDispatcher {
   }
 
   private startConnecting() {
-    const callback: CallbackFunction = (error: Error | undefined | null, connection: Connection) => { // TODO
+    const callback: UndescribedCallbackFunction = (error: Error | undefined | null, connection: Connection) => { // TODO
       if (error) {
         this.runner = this.transport.connect(callback);
       } else {
@@ -189,7 +189,7 @@ export default class ConnectionManager extends EventsDispatcher {
   }
 
   private buildErrorCallbacks() : IErrorCallbacks {
-    const withErrorEmitted = (callback: CallbackFunction) => (result: IAction) => {
+    const withErrorEmitted = (callback: UndescribedCallbackFunction) => (result: IAction) => {
       if (result.error) {
         this.emit(EventType.ERROR, {
           type: 'sfSocket:error',
@@ -238,7 +238,7 @@ export default class ConnectionManager extends EventsDispatcher {
     const previousState = this.state;
     this.state = newState;
     if (previousState !== newState) {
-      this.emit(StateToEvent[newState]);
+      this.emit(StateToEvent[newState] as any, undefined); // TODO: Type guard StateToEvent properly
     }
   }
 

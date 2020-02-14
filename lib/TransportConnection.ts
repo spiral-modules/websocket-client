@@ -19,7 +19,7 @@ export default class TransportConnection extends EventsDispatcher {
 
   initialize: Function;
 
-  constructor(hooks : ITransportHooks, name : string) {
+  constructor(hooks: ITransportHooks, name: string) {
     super();
     this.initialize = () => {
       const self = this;
@@ -117,7 +117,12 @@ export default class TransportConnection extends EventsDispatcher {
         },
       });
     } else {
-      this.changeState(EventType.CLOSED);
+      this.changeState(EventType.CLOSED, {
+        type: 'sfSocket:closed',
+        data: null,
+        error: 'Closed for unknown reason',
+        context: {},
+      });
     }
     this.unbindListeners();
     this.socket = undefined;

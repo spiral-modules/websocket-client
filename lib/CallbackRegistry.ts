@@ -1,58 +1,32 @@
-import { CallbackFunction, ICallback, ICallbackTable } from './types';
-import { EventType } from './events';
+import {
+  ICallback, ICallbackTable, UEventCallback,
+} from './types';
 
-const allTypes = [
-  EventType.MESSAGE,
-  EventType.ERROR,
-  EventType.CONNECTED,
-  EventType.DISCONNECTED,
-  EventType.CONNECTING,
-  EventType.OPEN,
-  EventType.CLOSED,
-  EventType.UNAVAILABLE,
-];
+export default class CallbackRegistry<EventMap> {
+    callbacks: ICallbackTable<EventMap> = {};
 
-export default class CallbackRegistry {
-    callbacks: ICallbackTable = {
-      [EventType.MESSAGE]: [],
-      [EventType.ERROR]: [],
-      [EventType.CONNECTED]: [],
-      [EventType.DISCONNECTED]: [],
-      [EventType.CONNECTING]: [],
-      [EventType.INITIALIZED]: [],
-      [EventType.UNAVAILABLE]: [],
-      [EventType.OPEN]: [],
-      [EventType.CLOSED]: [],
-    };
-
-    get(name: EventType): ICallback[] {
-      return this.callbacks[name];
+    get<K extends keyof EventMap>(name: K): ICallback[] {
+      const results = this.callbacks[name];
+      return (results || [])!; // TODO: Why TS wants '!' here?
     }
 
-    add(name: EventType, callback: CallbackFunction, channel?: string) {
-      this.callbacks[name].push({
-        fn: callback,
-        channel: channel || null,
-      });
+    add<K extends keyof EventMap>(name: K, callback: UEventCallback<EventMap, K>, channel?: string) {
+      if (!this.callbacks[name]) {
+        this.callbacks[name] = [];
+      }
+        this.callbacks[name]!.push({
+          fn: callback,
+          channel: channel || null,
+        });
     }
 
-    remove(name: EventType, callback?: CallbackFunction, channel?: string) {
+    remove<K extends keyof EventMap>(name: K, callback: UEventCallback<EventMap, K>, channel?: string) {
       if (!name && !callback && !channel) {
-        this.callbacks = {
-          [EventType.MESSAGE]: [],
-          [EventType.ERROR]: [],
-          [EventType.CONNECTED]: [],
-          [EventType.DISCONNECTED]: [],
-          [EventType.CONNECTING]: [],
-          [EventType.INITIALIZED]: [],
-          [EventType.UNAVAILABLE]: [],
-          [EventType.OPEN]: [],
-          [EventType.CLOSED]: [],
-        };
+        this.callbacks = {};
         return;
       }
 
-      const names = name ? [name] : allTypes;
+      const names: K[] = name ? [name] : Object.keys(this.callbacks) as K[];
 
       if (callback || channel) {
         this.removeCallback(names, callback, channel);
@@ -61,9 +35,9 @@ export default class CallbackRegistry {
       }
     }
 
-    private removeCallback(names: EventType[], callback?: CallbackFunction, channel?: string) {
+    private removeCallback<K extends keyof EventMap>(names: K[], callback?: UEventCallback<EventMap, K>, channel?: string) {
       names.forEach((name) => {
-        const callbacks = this.callbacks[name] || [];
+        const callbacks: Array<ICallback<UEventCallback<EventMap, K>>> = (this.callbacks[name] || [])!; // TODO: Why TS wants '!' here?
         this.callbacks[name] = callbacks.filter(
           (existedCallback: ICallback) => {
             const isEqualCallback = callback && callback === existedCallback.fn;
@@ -74,9 +48,9 @@ export default class CallbackRegistry {
       });
     }
 
-    private removeAllCallbacks(names: EventType[]) {
+    private removeAllCallbacks<K extends keyof EventMap>(names: K[]) {
       names.forEach((name) => {
-        this.callbacks[name] = [];
+        delete this.callbacks[name];
       });
     }
 }

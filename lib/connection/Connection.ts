@@ -4,7 +4,16 @@ import TransportConnection from '../TransportConnection';
 import { decodeMessage, encodeMessage, prepareCloseAction } from '../messageCodingUtils';
 import { EventType } from '../events';
 
-export default class Connection extends EventsDispatcher {
+/**
+ * Lists events that can be emitted by `Connection` class
+ */
+export interface ConnectionEventMap {
+  [EventType.CLOSED]: ISFSocketEvent,
+  [EventType.ERROR]: ISFSocketEvent,
+  [EventType.MESSAGE]: ISFSocketEvent,
+}
+
+export default class Connection extends EventsDispatcher<ConnectionEventMap> {
   id: string;
 
   transport: TransportConnection | null;
@@ -74,11 +83,11 @@ export default class Connection extends EventsDispatcher {
           }
         }
       },
-      error: (error: string) => { // TODO
+      error: (error: ISFSocketEvent) => {
         this.emit(EventType.ERROR, {
+          ...error,
           type: 'sfSocket:error',
-          error,
-          data: null,
+          data: null, // TODO: Are these overrides needed? Check what's being sent here
         });
       },
       closed: (closeEvent: ISFSocketEvent) => { // TODO

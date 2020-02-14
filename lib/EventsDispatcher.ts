@@ -1,27 +1,23 @@
-import { CallbackFunction } from './types';
+import {UndescribedCallbackFunction, SFEventMap, EventCallback} from './types';
 import CallbackRegistry from './CallbackRegistry';
 import { ISFSocketEvent } from './SFSocket';
 import { EventType } from './events';
 
 
-export default class EventsDispatcher {
-  callbacks: CallbackRegistry;
+export default class EventsDispatcher<EventMap> {
+  callbacks: CallbackRegistry = new CallbackRegistry<EventMap>();
 
-  constructor() {
-    this.callbacks = new CallbackRegistry();
-  }
-
-  bind(eventName: EventType, callback: CallbackFunction, channel?: string) {
+  bind<K extends keyof EventMap>(eventName: K, callback: EventCallback<K>, channel?: string) {
     this.callbacks.add(eventName, callback, channel);
     return this;
   }
 
-  unbind(eventName: EventType, callback: CallbackFunction, channel?: string) {
+  unbind<K extends keyof EventMap>(eventName: K, callback: EventCallback<K>, channel?: string) {
     this.callbacks.remove(eventName, callback, channel);
     return this;
   }
 
-  emit(eventName : EventType, event?: ISFSocketEvent) : EventsDispatcher {
+  emit<K extends keyof SFEventMap>(eventName: K, event: SFEventMap[K]) : EventsDispatcher<EventMap> {
     const callbacks = this.callbacks.get(eventName);
 
     const channelEvent: string | null | undefined = event && event.context

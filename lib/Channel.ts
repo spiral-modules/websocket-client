@@ -1,4 +1,4 @@
-import { CallbackFunction } from './types';
+import { UndescribedCallbackFunction } from './types';
 import EventsDispatcher from './EventsDispatcher';
 import { SFSocket } from './SFSocket';
 import { EventType } from './events';
@@ -39,11 +39,11 @@ export default class Channel extends EventsDispatcher {
     this.socket.joinChannel(this.name);
   }
 
-  subscribe(eventName: EventType, callback: CallbackFunction) {
+  subscribe(eventName: EventType, callback: UndescribedCallbackFunction) {
     this.socket.subscribe(eventName, callback, this.name);
   }
 
-  unsubscribe(eventName: EventType, callback: CallbackFunction) {
+  unsubscribe(eventName: EventType, callback: UndescribedCallbackFunction) {
     this.socket.unsubscribe(eventName, callback, this.name);
   }
 

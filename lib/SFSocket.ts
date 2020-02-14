@@ -1,4 +1,4 @@
-import { CallbackFunction } from './types';
+import { UndescribedCallbackFunction } from './types';
 import Channel from './Channel';
 import ConnectionManager, { ConnectionState } from './connection/ConnectionManager';
 import { defaultConfig, STORAGE_KEY } from './constants';
@@ -156,11 +156,11 @@ export class SFSocket {
     });
   }
 
-  subscribe(eventName: EventType, callback: CallbackFunction, channel?: string) { // TODO
+  subscribe(eventName: EventType, callback: UndescribedCallbackFunction, channel?: string) { // TODO
     return this.connection.bind(eventName, callback, channel);
   }
 
-  unsubscribe(eventName: EventType, callback: CallbackFunction, channel?: string) { // TODO
+  unsubscribe(eventName: EventType, callback: UndescribedCallbackFunction, channel?: string) { // TODO
     return this.connection.unbind(eventName, callback, channel);
   }
 
