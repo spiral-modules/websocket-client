@@ -1,6 +1,6 @@
 /* eslint-disable no-new */
 import WS from 'jest-websocket-mock';
-import { EventType } from '../events';
+import { EventType } from '../eventdispatcher/events';
 import { SFSocket } from '../index';
 import { makeTestSocketUrl, socketOptions } from '../mock-data';
 

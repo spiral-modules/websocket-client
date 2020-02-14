@@ -4,12 +4,12 @@ import {
   IConnectionCallbacks,
   IErrorCallbacks,
 } from './types';
-import EventsDispatcher from '../EventsDispatcher';
+import EventsDispatcher from '../eventdispatcher/EventsDispatcher';
 import Transport, { IRunner, ITransport } from '../Transport';
 import Connection from './Connection';
 import { ISFSocketConfig, ISFSocketEvent } from '../SFSocket';
 
-import { EventType } from '../events';
+import { EventType } from '../eventdispatcher/events';
 
 export enum ConnectionState {
   INITIALIZED = 'initialized',

@@ -2,7 +2,7 @@ import { UndescribedCallbackFunction } from './types';
 import Connection from './connection/Connection';
 import TransportConnection, { ITransportHooks } from './TransportConnection';
 import { ISFSocketConfig } from './SFSocket';
-import { EventType } from './events';
+import { EventType } from './eventdispatcher/events';
 
 export interface IRunner {
   abort: () => void;

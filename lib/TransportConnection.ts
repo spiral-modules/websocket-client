@@ -1,6 +1,6 @@
-import EventsDispatcher from './EventsDispatcher';
+import EventsDispatcher from './eventdispatcher/EventsDispatcher';
 import { ISFSocketConfig, ISFSocketEvent } from './SFSocket';
-import { EventType } from './events';
+import { EventType } from './eventdispatcher/events';
 
 export interface ITransportHooks {
   url: string;
@@ -8,7 +8,17 @@ export interface ITransportHooks {
   getSocket(url: string, options?: ISFSocketConfig): WebSocket;
 }
 
-export default class TransportConnection extends EventsDispatcher {
+
+/**
+ * Lists events that can be emitted by `TransportConnection` class
+ */
+export interface TransportEventMap {
+  [EventType.INITIALIZED]: ISFSocketEvent,
+  [EventType.ERROR]: ISFSocketEvent,
+  [EventType.MESSAGE]: ISFSocketEvent,
+}
+
+export default class TransportConnection extends EventsDispatcher<TransportEventMap> {
   hooks: ITransportHooks;
 
   name: string;

@@ -2,8 +2,8 @@ import { UndescribedCallbackFunction } from './types';
 import Channel from './Channel';
 import ConnectionManager, { ConnectionState } from './connection/ConnectionManager';
 import { defaultConfig, STORAGE_KEY } from './constants';
-import { EventType } from './events';
-import EventsDispatcher from './EventsDispatcher';
+import { EventType } from './eventdispatcher/events';
+import EventsDispatcher from './eventdispatcher/EventsDispatcher';
 
 const CONNECTION_EVENTS = {
   JOIN: 'join',

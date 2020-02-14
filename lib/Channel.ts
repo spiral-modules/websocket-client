@@ -1,7 +1,7 @@
 import { UndescribedCallbackFunction } from './types';
-import EventsDispatcher from './EventsDispatcher';
+import EventsDispatcher from './eventdispatcher/EventsDispatcher';
 import { SFSocket } from './SFSocket';
-import { EventType } from './events';
+import { EventType } from './eventdispatcher/events';
 
 export default class Channel extends EventsDispatcher {
   name: string;

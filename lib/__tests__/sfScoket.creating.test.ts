@@ -1,4 +1,4 @@
-import { EventType } from '../events';
+import { EventType } from '../eventdispatcher/events';
 import { SFSocket } from '../index';
 import { socketOptions } from '../mock-data';
 

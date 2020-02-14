@@ -1,4 +1,4 @@
-import { EventType } from 'events';
+import { EventType } from 'eventdispatcher/events';
 import { ISFSocketEvent } from './SFSocket';
 
 export interface ICallback<F = UndescribedCallbackFunction> {

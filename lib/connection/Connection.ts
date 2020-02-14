@@ -1,8 +1,8 @@
-import EventsDispatcher from '../EventsDispatcher';
+import EventsDispatcher from '../eventdispatcher/EventsDispatcher';
 import { ISFSocketEvent } from '../SFSocket';
 import TransportConnection from '../TransportConnection';
 import { decodeMessage, encodeMessage, prepareCloseAction } from '../messageCodingUtils';
-import { EventType } from '../events';
+import { EventType } from '../eventdispatcher/events';
 
 /**
  * Lists events that can be emitted by `Connection` class

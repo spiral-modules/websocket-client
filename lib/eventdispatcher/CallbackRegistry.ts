@@ -1,6 +1,6 @@
 import {
   ICallback, ICallbackTable, UEventCallback,
-} from './types';
+} from '../types';
 
 export default class CallbackRegistry<EventMap> {
     callbacks: ICallbackTable<EventMap> = {};
