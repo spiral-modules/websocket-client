@@ -158,3 +158,10 @@ Development
 ##### Windows
 
 On windows execute `git config core.autocrlf false` to disable automatic line ending conversion.
+
+##### TODO
+
+* What kind of commands we are expected to send on server. Currently only 'join' and 'leave' are sending something legit. Channel name in 'sendEvent' is completely ignored.
+* We don't need separate 'sfSocket' prefix as all binds are already having a type and we can either omit it or remove completely
+* Connection callback can and should be made into promise. Or why do we might need flow of error events? Needs research.
+* Needs documenting that channel names should not have '@' symbol and why
