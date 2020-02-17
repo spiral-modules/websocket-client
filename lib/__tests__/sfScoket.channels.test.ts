@@ -3,6 +3,7 @@ import WS from 'jest-websocket-mock';
 import { NamesDict } from '../eventdispatcher/events';
 import { SFSocket } from '../index';
 import { makeTestSocketUrl, socketOptions } from '../mock-data';
+import { SFSocketEventType } from '../SFSocket';
 
 const serverUrl = makeTestSocketUrl(socketOptions);
 const clientMessage = {
@@ -11,7 +12,7 @@ const clientMessage = {
   },
   data: 'message',
   error: null,
-  type: 'sfSocket:message',
+  type: SFSocketEventType.MESSAGE,
 };
 
 
@@ -97,7 +98,7 @@ describe('sfSocket channels', () => {
     Server.close();
 
     expect(channelCallback.mock.calls[0][0]).toEqual({
-      context: { code: undefined }, data: null, error: undefined, type: 'sfSocket:error',
+      context: { code: undefined }, data: null, error: undefined, type: SFSocketEventType.ERROR,
     });
     expect(channelCallback).toHaveBeenCalledTimes(1);
   });

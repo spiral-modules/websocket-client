@@ -1,5 +1,5 @@
 import EventsDispatcher from '../eventdispatcher/EventsDispatcher';
-import { ISFSocketConfig, ISFSocketEvent } from '../SFSocket';
+import { ISFSocketConfig, ISFSocketEvent, SFSocketEventType } from '../SFSocket';
 import { NamesDict } from '../eventdispatcher/events';
 
 export interface ITransportHooks {
@@ -62,7 +62,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
       setTimeout(() => {
         this.onError(e);
         this.onClosed({
-          type: 'sfSocket:error',
+          type: SFSocketEventType.ERROR,
           data: null,
           error: e,
           context: {},
@@ -118,7 +118,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
 
   private onError(error?: string) {
     this.emit(NamesDict.ERROR, {
-      type: 'sfSocket:error',
+      type: SFSocketEventType.ERROR,
       error: error || 'websocket connection error',
       data: null,
     });
@@ -127,7 +127,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
   private onClose(closeEvent?: CloseEvent) {
     if (closeEvent) {
       this.onClosed({
-        type: closeEvent.wasClean ? 'sfSocket:closed' : 'sfSocket:error',
+        type: closeEvent.wasClean ? SFSocketEventType.CLOSED : SFSocketEventType.ERROR,
         data: closeEvent.wasClean ? closeEvent.reason : null,
         error: closeEvent.wasClean ? null : closeEvent.reason,
         context: {
@@ -136,7 +136,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
       });
     } else {
       this.onClosed({
-        type: 'sfSocket:closed',
+        type: SFSocketEventType.CLOSED,
         data: null,
         error: 'Closed for unknown reason',
         context: {},
@@ -148,7 +148,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
 
   private onMessage(message: MessageEvent) {
     this.emit(NamesDict.MESSAGE, {
-      type: 'sfSocket:message',
+      type: SFSocketEventType.MESSAGE,
       data: typeof message.data === 'string' ? message.data : JSON.stringify(message.data),
       error: null,
     });

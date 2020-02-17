@@ -1,4 +1,4 @@
-import { ISFSocketEvent } from './SFSocket';
+import { ISFSocketEvent, SFSocketEventType } from './SFSocket';
 
 const systemSymbols = ['@'];
 
@@ -19,7 +19,7 @@ export const decodeMessage = (messageEvent: string): ISFSocketEvent => {
     };
 
     return {
-      type: 'sfSocket:message',
+      type: SFSocketEventType.MESSAGE,
       error: null,
       data: messageData.payload || null,
       context: {
@@ -29,9 +29,9 @@ export const decodeMessage = (messageEvent: string): ISFSocketEvent => {
   }
 
   return {
-    type: 'MessageParseError',
+    type: SFSocketEventType.ERROR,
     error: `MessageEvent: ${messageEvent} not contains data property`,
-    data: null,
+    data: 'MessageParseError',
   };
 };
 

@@ -6,6 +6,12 @@ import EventsDispatcher from './eventdispatcher/EventsDispatcher';
 export interface IChannels {
     [name: string]: Channel;
 }
+export declare enum SFSocketEventType {
+    CONNECTING = "sfSocket:connecting",
+    MESSAGE = "sfSocket:message",
+    ERROR = "sfSocket:error",
+    CLOSED = "sfSocket:closed"
+}
 export interface ISFSocketConfig {
     host: string;
     port: string | number;
@@ -16,7 +22,7 @@ export interface ISFSocketConfig {
     useStorage?: boolean;
 }
 export interface ISFSocketEvent {
-    type: string;
+    type: SFSocketEventType;
     data: string | null;
     error: string | null;
     context?: {

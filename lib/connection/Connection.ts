@@ -1,5 +1,5 @@
 import EventsDispatcher from '../eventdispatcher/EventsDispatcher';
-import { ISFSocketEvent } from '../SFSocket';
+import { ISFSocketEvent, SFSocketEventType } from '../SFSocket';
 import TransportConnection from '../transport/TransportConnection';
 import { decodeMessage, encodeMessage, prepareCloseAction } from '../messageCodingUtils';
 import { NamesDict } from '../eventdispatcher/events';
@@ -42,7 +42,7 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
 
   sendEvent(name: string, data: any, channel?: string) : boolean {
     const event: ISFSocketEvent = {
-      type: name,
+      type: name as any, // TODO: That's not really a ISFSocketEvent
       data,
       error: null,
     };
@@ -75,16 +75,16 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
           sfSocketEvent = decodeMessage(messageEvent.data!);
         } catch (e) {
           this.emit(NamesDict.ERROR, {
-            type: 'MessageParseError',
+            type: SFSocketEventType.ERROR,
             error: e,
             data: JSON.stringify(messageEvent),
           });
         }
 
         if (sfSocketEvent) {
-          if (sfSocketEvent.type === 'sfSocket:error') {
+          if (sfSocketEvent.type === SFSocketEventType.ERROR) {
             this.emit(NamesDict.ERROR, {
-              type: 'sfSocket:error',
+              type: SFSocketEventType.ERROR,
               data: sfSocketEvent.data,
               error: null,
             });
@@ -96,7 +96,7 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
       error: (error: ISFSocketEvent) => {
         this.emit(NamesDict.ERROR, {
           ...error,
-          type: 'sfSocket:error',
+          type: SFSocketEventType.ERROR,
           data: null, // TODO: Are these overrides needed? Check what's being sent here
         });
       },
@@ -121,7 +121,7 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
   private handleCloseEvent(closeEvent : ISFSocketEvent) {
     const action = prepareCloseAction(closeEvent);
 
-    if (action.type === 'sfSocket:closed') {
+    if (action.type === SFSocketEventType.CLOSED) {
       this.emit(NamesDict.CLOSED, action);
     } else {
       this.emit(NamesDict.ERROR, action);

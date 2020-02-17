@@ -14,6 +14,14 @@ export interface IChannels {
   [name: string]: Channel;
 }
 
+// TODO: why do we even need 'sfSocket' prefix and not just reuse type
+export enum SFSocketEventType {
+  CONNECTING='sfSocket:connecting',
+  MESSAGE='sfSocket:message',
+  ERROR='sfSocket:error',
+  CLOSED='sfSocket:closed',
+}
+
 
 export interface ISFSocketConfig {
   host: string,
@@ -26,7 +34,7 @@ export interface ISFSocketConfig {
 }
 
 export interface ISFSocketEvent {
-  type: string,
+  type: SFSocketEventType,
   data: string | null,
   error: string | null,
   context?: {
@@ -88,7 +96,7 @@ export class SFSocket {
     });
 
     this.connection.bind(NamesDict.MESSAGE, (event: any) => {
-      this.eventsDispatcher.emit(NamesDict.MESSAGE, event);
+      this.eventsDispatcher.emit(NamesDict.MESSAGE, event); // TODO: Why do we need eventDispatcher if it only consumes message event
     });
 
     this.connection.bind(NamesDict.CONNECTING, () => {
