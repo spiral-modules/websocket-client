@@ -1,5 +1,6 @@
-import EventsDispatcher from './EventsDispatcher';
-import { ISFSocketConfig, ISFSocketEvent } from './SFSocket';
+import EventsDispatcher from '../eventdispatcher/EventsDispatcher';
+import { ISFSocketConfig, ISFSocketEvent } from '../SFSocket';
+import { NamesDict } from '../eventdispatcher/events';
 
 export interface ITransportHooks {
   url: string;
@@ -7,7 +8,20 @@ export interface ITransportHooks {
   getSocket(url: string, options?: ISFSocketConfig): WebSocket;
 }
 
-export default class TransportConnection extends EventsDispatcher {
+
+/**
+ * Lists events that can be emitted by `TransportConnection` class
+ */
+export interface TransportEventMap {
+  [NamesDict.INITIALIZED]: undefined,
+  [NamesDict.ERROR]: ISFSocketEvent,
+  [NamesDict.MESSAGE]: ISFSocketEvent,
+  [NamesDict.CLOSED]: ISFSocketEvent,
+  [NamesDict.OPEN]: undefined,
+  [NamesDict.CONNECTING]: undefined,
+}
+
+export default class TransportConnection extends EventsDispatcher<TransportEventMap> {
   hooks: ITransportHooks;
 
   name: string;
@@ -18,13 +32,13 @@ export default class TransportConnection extends EventsDispatcher {
 
   initialize: Function;
 
-  constructor(hooks : ITransportHooks, name : string) {
+  constructor(hooks: ITransportHooks, name: string) {
     super();
     this.initialize = () => {
       const self = this;
 
       if (self.hooks.isInitialized()) {
-        self.changeState('initialized');
+        self.changeState(NamesDict.INITIALIZED);
       } else {
         self.onClose();
       }
@@ -47,13 +61,18 @@ export default class TransportConnection extends EventsDispatcher {
       // Workaround for MobileSafari bug (see https://gist.github.com/2052006)
       setTimeout(() => {
         this.onError(e);
-        this.changeState('closed');
+        this.onClosed({
+          type: 'sfSocket:error',
+          data: null,
+          error: e,
+          context: {},
+        });
       });
       return false;
     }
 
     this.bindListeners();
-    this.changeState('connecting');
+    this.changeState(NamesDict.CONNECTING);
     return true;
   }
 
@@ -92,13 +111,13 @@ export default class TransportConnection extends EventsDispatcher {
 
 
   private onOpen() {
-    this.changeState('open');
+    this.changeState(NamesDict.OPEN);
     if (!this.socket) return;
     this.socket.onopen = null;
   }
 
   private onError(error?: string) {
-    this.emit('error', {
+    this.emit(NamesDict.ERROR, {
       type: 'sfSocket:error',
       error: error || 'websocket connection error',
       data: null,
@@ -107,7 +126,7 @@ export default class TransportConnection extends EventsDispatcher {
 
   private onClose(closeEvent?: CloseEvent) {
     if (closeEvent) {
-      this.changeState('closed', {
+      this.onClosed({
         type: closeEvent.wasClean ? 'sfSocket:closed' : 'sfSocket:error',
         data: closeEvent.wasClean ? closeEvent.reason : null,
         error: closeEvent.wasClean ? null : closeEvent.reason,
@@ -116,14 +135,19 @@ export default class TransportConnection extends EventsDispatcher {
         },
       });
     } else {
-      this.changeState('closed');
+      this.onClosed({
+        type: 'sfSocket:closed',
+        data: null,
+        error: 'Closed for unknown reason',
+        context: {},
+      });
     }
     this.unbindListeners();
     this.socket = undefined;
   }
 
   private onMessage(message: MessageEvent) {
-    this.emit('message', {
+    this.emit(NamesDict.MESSAGE, {
       type: 'sfSocket:message',
       data: typeof message.data === 'string' ? message.data : JSON.stringify(message.data),
       error: null,
@@ -146,8 +170,13 @@ export default class TransportConnection extends EventsDispatcher {
     };
   }
 
-  private changeState(state : string, params?: ISFSocketEvent) {
+  private changeState(state: NamesDict.OPEN | NamesDict.CONNECTING | NamesDict.INITIALIZED) {
     this.state = state;
-    this.emit(state, params);
+    this.emit(state, undefined);
+  }
+
+  private onClosed(params: ISFSocketEvent) {
+    this.state = NamesDict.CLOSED;
+    this.emit(NamesDict.CLOSED, params);
   }
 }

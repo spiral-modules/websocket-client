@@ -1,9 +1,29 @@
-import EventsDispatcher from '../EventsDispatcher';
+import EventsDispatcher from '../eventdispatcher/EventsDispatcher';
 import { ISFSocketEvent } from '../SFSocket';
-import TransportConnection from '../TransportConnection';
+import TransportConnection from '../transport/TransportConnection';
 import { decodeMessage, encodeMessage, prepareCloseAction } from '../messageCodingUtils';
+import { NamesDict } from '../eventdispatcher/events';
 
-export default class Connection extends EventsDispatcher {
+/**
+ * Lists events that can be emitted by `Connection` class
+ */
+export interface ConnectionEventMap {
+  [NamesDict.CLOSED]: ISFSocketEvent,
+  [NamesDict.ERROR]: ISFSocketEvent,
+  [NamesDict.MESSAGE]: ISFSocketEvent,
+}
+
+
+export interface EventWithCode {
+  context: { code: string }
+}
+
+const isEventWithCode = (variableToCheck: any): variableToCheck is EventWithCode => (
+  variableToCheck.context
+    && typeof variableToCheck.context.code !== 'undefined'
+);
+
+export default class Connection extends EventsDispatcher<ConnectionEventMap> {
   id: string;
 
   transport: TransportConnection | null;
@@ -20,7 +40,7 @@ export default class Connection extends EventsDispatcher {
     return this.transport.send(data);
   }
 
-  sendEvent(name : string, data : any, channel?: string) : boolean {
+  sendEvent(name: string, data: any, channel?: string) : boolean {
     const event: ISFSocketEvent = {
       type: name,
       data,
@@ -43,68 +63,68 @@ export default class Connection extends EventsDispatcher {
   private bindListeners() {
     const unbindListeners = (listeners: any) => { // TODO
       if (!this.transport) return;
-      this.transport.unbind('message', listeners.message);
-      this.transport.unbind('error', listeners.error);
-      this.transport.unbind('closed', listeners.closed);
+      this.transport.unbind(NamesDict.MESSAGE, listeners.message);
+      this.transport.unbind(NamesDict.ERROR, listeners.error);
+      this.transport.unbind(NamesDict.CLOSED, listeners.closed);
     };
 
     const listeners = {
-      message: (messageEvent: MessageEvent) => {
+      message: (messageEvent: ISFSocketEvent) => {
         let sfSocketEvent = null;
         try {
-          sfSocketEvent = decodeMessage(messageEvent.data);
+          sfSocketEvent = decodeMessage(messageEvent.data!);
         } catch (e) {
-          this.emit('error', {
+          this.emit(NamesDict.ERROR, {
             type: 'MessageParseError',
             error: e,
-            data: typeof messageEvent === 'string' ? messageEvent : JSON.stringify(messageEvent),
+            data: JSON.stringify(messageEvent),
           });
         }
 
         if (sfSocketEvent) {
           if (sfSocketEvent.type === 'sfSocket:error') {
-            this.emit('error', {
+            this.emit(NamesDict.ERROR, {
               type: 'sfSocket:error',
               data: sfSocketEvent.data,
               error: null,
             });
           } else {
-            this.emit('message', sfSocketEvent);
+            this.emit(NamesDict.MESSAGE, sfSocketEvent);
           }
         }
       },
-      error: (error: string) => { // TODO
-        this.emit('error', {
+      error: (error: ISFSocketEvent) => {
+        this.emit(NamesDict.ERROR, {
+          ...error,
           type: 'sfSocket:error',
-          error,
-          data: null,
+          data: null, // TODO: Are these overrides needed? Check what's being sent here
         });
       },
       closed: (closeEvent: ISFSocketEvent) => { // TODO
         unbindListeners(listeners);
 
-        if (closeEvent && closeEvent.context && closeEvent.context.code) {
+        if (isEventWithCode(closeEvent)) {
           this.handleCloseEvent(closeEvent);
         }
 
         this.transport = null;
-        this.emit('closed');
+        this.emit(NamesDict.CLOSED, closeEvent);
       },
     };
 
     if (!this.transport) return;
-    this.transport.bind('message', listeners.message);
-    this.transport.bind('error', listeners.error);
-    this.transport.bind('closed', listeners.closed);
+    this.transport.bind(NamesDict.MESSAGE, listeners.message);
+    this.transport.bind(NamesDict.ERROR, listeners.error);
+    this.transport.bind(NamesDict.CLOSED, listeners.closed);
   }
 
   private handleCloseEvent(closeEvent : ISFSocketEvent) {
     const action = prepareCloseAction(closeEvent);
 
     if (action.type === 'sfSocket:closed') {
-      this.emit('close', action);
+      this.emit(NamesDict.CLOSED, action);
     } else {
-      this.emit('error', action);
+      this.emit(NamesDict.ERROR, action);
     }
   }
 }

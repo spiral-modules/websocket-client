@@ -1,18 +1,19 @@
-import EventsDispatcher from './eventsDispatcher';
-import { SFSocket } from './sfSocket';
-export default class Channel extends EventsDispatcher {
+import { UEventCallback } from './types';
+import { SFSocket } from './SFSocket';
+import { ConnectionManagerEventMap } from './connection/ConnectionManager';
+export default class Channel {
     name: string;
     socket: SFSocket;
     subscribed: boolean;
     subscriptionCancelled: boolean;
     constructor(name: string, socket: SFSocket);
-    trigger(event: string, data: any): boolean;
+    trigger(event: string, data: string[]): boolean;
     disconnect(): void;
     join(): void;
-    subscribe(eventName: string, data: any): void;
-    unsubscribe(eventName: string, data: any): void;
+    subscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>): void;
+    unsubscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>): void;
     leaveChannel(): void;
     cancelSubscription(): void;
     reinstateSubscription(): void;
 }
-//# sourceMappingURL=channel.d.ts.map
+//# sourceMappingURL=Channel.d.ts.map

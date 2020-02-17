@@ -1,6 +1,7 @@
 import WS from 'jest-websocket-mock';
 import { SFSocket } from '../index';
 import { socketOptions, makeTestSocketUrl } from '../mock-data';
+import { NamesDict } from '../eventdispatcher/events';
 
 const fakeUrl = makeTestSocketUrl(socketOptions);
 
@@ -13,7 +14,7 @@ describe('sfSocket connections', () => {
     const ClientSocket = new SFSocket(socketOptions);
 
     SFSocket.ready();
-    expect(ClientSocket.connection.state).toBe('connecting');
+    expect(ClientSocket.connection.state).toBe(NamesDict.CONNECTING);
   });
 
   test('sfSocket can receive message with error', async () => {

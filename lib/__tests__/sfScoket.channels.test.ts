@@ -1,7 +1,8 @@
 /* eslint-disable no-new */
 import WS from 'jest-websocket-mock';
+import { NamesDict } from '../eventdispatcher/events';
 import { SFSocket } from '../index';
-import { socketOptions, makeTestSocketUrl } from '../mock-data';
+import { makeTestSocketUrl, socketOptions } from '../mock-data';
 
 const serverUrl = makeTestSocketUrl(socketOptions);
 const clientMessage = {
@@ -43,7 +44,7 @@ describe('sfSocket channels', () => {
     SFSocket.ready();
 
     const testChannel = ClientSocket.channel('testChannel');
-    testChannel.subscribe('connected', websocketCallback);
+    testChannel.subscribe(NamesDict.CONNECTED, websocketCallback);
 
     expect(websocketCallback).toHaveBeenCalledTimes(0);
 
@@ -66,15 +67,15 @@ describe('sfSocket channels', () => {
     await Server.connected;
 
     const SocketChannel = ClientSocket.channel('testChannel');
-    SocketChannel.subscribe('message', channelCallback);
+    SocketChannel.subscribe(NamesDict.MESSAGE, channelCallback);
 
 
     expect(channelCallback).toHaveBeenCalledTimes(0);
 
     Server.send({ topic: 'testChannel', payload: 'message' });
 
-    expect(channelCallback.mock.calls[0][0]).toEqual(clientMessage);
     expect(channelCallback).toHaveBeenCalledTimes(1);
+    expect(channelCallback.mock.calls[0][0]).toEqual(clientMessage);
 
     Server.close();
   });
@@ -87,7 +88,7 @@ describe('sfSocket channels', () => {
     SFSocket.ready();
 
     const testChannel = ClientSocket.channel('testChannel');
-    testChannel.subscribe('closed', channelCallback);
+    testChannel.subscribe(NamesDict.CLOSED, channelCallback);
 
     await Server.connected;
 
@@ -95,7 +96,9 @@ describe('sfSocket channels', () => {
 
     Server.close();
 
-    expect(channelCallback.mock.calls[0][0]).toBeUndefined();
+    expect(channelCallback.mock.calls[0][0]).toEqual({
+      context: { code: undefined }, data: null, error: undefined, type: 'sfSocket:error',
+    });
     expect(channelCallback).toHaveBeenCalledTimes(1);
   });
 
@@ -110,7 +113,7 @@ describe('sfSocket channels', () => {
     SFSocket.ready();
 
     const testChannel = ClientSocket.channel('testChannel');
-    testChannel.subscribe('error', channelCallback);
+    testChannel.subscribe(NamesDict.ERROR, channelCallback);
 
     await Server.connected;
 

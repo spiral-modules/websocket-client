@@ -1,5 +1,7 @@
+import { NamesDict } from '../eventdispatcher/events';
 import { SFSocket } from '../index';
 import { socketOptions } from '../mock-data';
+import { ConnectionManagerEventMap } from '../connection/ConnectionManager';
 
 
 describe('sfSocket instances count', () => {
@@ -47,7 +49,7 @@ describe('sfSocket connections', () => {
     const ws = new SFSocket(socketOptions);
     SFSocket.ready();
 
-    expect(ws.connection.state).toBe('connecting');
+    expect(ws.connection.state).toBe(NamesDict.CONNECTING);
   });
 
   test('sfSocket state should be changed to disconnected', () => {
@@ -56,27 +58,27 @@ describe('sfSocket connections', () => {
 
     ws.disconnect();
 
-    expect(ws.connection.state).toBe('disconnected');
+    expect(ws.connection.state).toBe(NamesDict.DISCONNECTED);
   });
 
   test('sfSocket defaults callbacks should be created', () => {
     const ws = new SFSocket(socketOptions);
     SFSocket.ready();
 
-    const connectionCallbacksKeys = [
-      'sf:connected',
-      'sf:message',
-      'sf:connecting',
-      'sf:disconnected',
-      'sf:error',
+    const connectionCallbacksKeys: Array<keyof ConnectionManagerEventMap> = [
+      NamesDict.CONNECTED,
+      NamesDict.MESSAGE,
+      NamesDict.CONNECTING,
+      NamesDict.DISCONNECTED,
+      NamesDict.ERROR,
     ];
 
     const wsConnectionCallbacks = ws.connection.callbacks.callbacks;
 
     expect(wsConnectionCallbacks).not.toBeUndefined();
 
-    connectionCallbacksKeys.forEach((key) => {
-      expect(wsConnectionCallbacks[key]).not.toBeUndefined();
+    connectionCallbacksKeys.forEach((key: keyof ConnectionManagerEventMap) => {
+      expect(wsConnectionCallbacks[key] as any).not.toBeUndefined();
     });
   });
 });

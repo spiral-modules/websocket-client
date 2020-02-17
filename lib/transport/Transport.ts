@@ -1,13 +1,15 @@
-import Connection from './connection/Connection';
+import { UndescribedCallbackFunction } from '../types';
+import Connection from '../connection/Connection';
 import TransportConnection, { ITransportHooks } from './TransportConnection';
-import { ISFSocketConfig } from './SFSocket';
+import { ISFSocketConfig } from '../SFSocket';
+import { NamesDict } from '../eventdispatcher/events';
 
 export interface IRunner {
   abort: () => void;
 }
 
 export interface ITransport {
-  connect(callback: Function): IRunner;
+  connect(callback: UndescribedCallbackFunction): IRunner;
 }
 
 export default class Transport implements ITransport {
@@ -37,7 +39,7 @@ export default class Transport implements ITransport {
     this.name = name;
   }
 
-  connect(callback: Function) {
+  connect(callback: UndescribedCallbackFunction) {
     let connected = false;
 
     const transport = new TransportConnection(
@@ -45,18 +47,18 @@ export default class Transport implements ITransport {
     );
 
     const onInitialized = () => {
-      transport.unbind('initialized', onInitialized);
+      transport.unbind(NamesDict.INITIALIZED, onInitialized);
       transport.connect();
     };
 
     const unbindListeners = () => {
-      transport.unbind('initialized', onInitialized);
+      transport.unbind(NamesDict.INITIALIZED, onInitialized);
       // eslint-disable-next-line no-use-before-define
-      transport.unbind('open', onOpen);
+      transport.unbind(NamesDict.OPEN, onOpen);
       // eslint-disable-next-line no-use-before-define
-      transport.unbind('error', onError);
+      transport.unbind(NamesDict.ERROR, onError);
       // eslint-disable-next-line no-use-before-define
-      transport.unbind('closed', onClosed);
+      transport.unbind(NamesDict.CLOSED, onClosed);
     };
 
     const onOpen = () => {
@@ -75,10 +77,10 @@ export default class Transport implements ITransport {
       unbindListeners();
     };
 
-    transport.bind('initialized', onInitialized);
-    transport.bind('open', onOpen);
-    transport.bind('error', onError);
-    transport.bind('closed', onClosed);
+    transport.bind(NamesDict.INITIALIZED, onInitialized);
+    transport.bind(NamesDict.OPEN, onOpen);
+    transport.bind(NamesDict.ERROR, onError);
+    transport.bind(NamesDict.CLOSED, onClosed);
 
     transport.initialize();
 
