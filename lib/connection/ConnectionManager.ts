@@ -30,7 +30,7 @@ export interface ConnectionManagerEventMap {
 export default class ConnectionManager extends EventsDispatcher<ConnectionManagerEventMap> {
     options: ISFSocketConfig;
 
-    private state: ConnectionState;
+    state: ConnectionState;
 
     connection: Connection | null;
 

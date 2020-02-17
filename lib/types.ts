@@ -1,4 +1,4 @@
-import { NamesDict } from 'eventdispatcher/events';
+import { NamesDict } from './eventdispatcher/events';
 import { ISFSocketEvent } from './SFSocket';
 
 export interface ICallback<F = UndescribedCallbackFunction> {

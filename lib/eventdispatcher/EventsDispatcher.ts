@@ -6,7 +6,7 @@ export interface EventWithChannel {
 }
 
 const isEventWithChannel = (variableToCheck: any): variableToCheck is EventWithChannel => (
-  variableToCheck.context
+  variableToCheck && variableToCheck.context
     && typeof variableToCheck.context.channel === 'string'
 );
 

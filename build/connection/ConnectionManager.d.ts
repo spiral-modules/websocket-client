@@ -16,7 +16,7 @@ export interface ConnectionManagerEventMap {
 }
 export default class ConnectionManager extends EventsDispatcher<ConnectionManagerEventMap> {
     options: ISFSocketConfig;
-    private state;
+    state: ConnectionState;
     connection: Connection | null;
     usingTLS: boolean;
     unavailableTimer: number;

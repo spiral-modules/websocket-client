@@ -96,7 +96,9 @@ describe('sfSocket channels', () => {
 
     Server.close();
 
-    expect(channelCallback.mock.calls[0][0]).toBeUndefined();
+    expect(channelCallback.mock.calls[0][0]).toEqual({
+      context: { code: undefined }, data: null, error: undefined, type: 'sfSocket:error',
+    });
     expect(channelCallback).toHaveBeenCalledTimes(1);
   });
 
