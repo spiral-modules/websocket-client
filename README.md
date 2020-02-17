@@ -99,11 +99,18 @@ ws.subscribe('closed', () => console.log('closed'));
 SFSocket works in a particular format:
 
 ```js
-// SFSocket sends
-const cmd = 'join';
-const data = ['command arguments'];
-const channel = 'channel_1'; // Optional
-ws.sendEvent(cmd, data, channel); // `data` field may contain names of channels
+// Send join or leave command manually
+const cmd = 'join'; // 'join' or 'leave'
+const data = ['command arguments']; // List of channels
+ws.sendEvent(cmd, data);
+````
+
+````js
+// Send custom command
+const cmd = 'custom';
+const data = ['command arguments']; // any data
+const channel = 'channel_1'; // Optional param to select channel to send
+ws.sendEvent(cmd, data, channel);
 ````
 
 ### Events
