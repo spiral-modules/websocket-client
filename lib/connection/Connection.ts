@@ -72,7 +72,7 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
       message: (messageEvent: ISFSocketEvent) => {
         let sfSocketEvent = null;
         try {
-          sfSocketEvent = decodeMessage(messageEvent.data!);
+          sfSocketEvent = decodeMessage(messageEvent.data);
         } catch (e) {
           this.emit(NamesDict.ERROR, {
             type: SFSocketEventType.ERROR,
