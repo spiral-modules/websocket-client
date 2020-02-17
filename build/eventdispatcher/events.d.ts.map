@@ -1,0 +1,1 @@
+{"version":3,"file":"events.d.ts","sourceRoot":"","sources":["../../lib/eventdispatcher/events.ts"],"names":[],"mappings":"AAGA,oBAAY,SAAS;IACnB,SAAS,cAAa;IACtB,OAAO,YAAU;IACjB,UAAU,eAAa;IACvB,YAAY,iBAAe;IAC3B,KAAK,UAAQ;IACb,IAAI,SAAO;IACX,WAAW,gBAAc;IACzB,MAAM,WAAS;IACf,WAAW,gBAAc;CAC1B"}

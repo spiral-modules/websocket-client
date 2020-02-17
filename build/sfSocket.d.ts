@@ -1,6 +1,8 @@
-import Channel from './channel';
-import EventsDispatcher from './eventsDispatcher';
-import ConnectionManager from './connectionManager';
+import { UEventCallback } from './types';
+import Channel from './Channel';
+import ConnectionManager, { ConnectionManagerEventMap } from './connection/ConnectionManager';
+import { NamesDict } from './eventdispatcher/events';
+import EventsDispatcher from './eventdispatcher/EventsDispatcher';
 export interface IChannels {
     [name: string]: Channel;
 }
@@ -22,13 +24,16 @@ export interface ISFSocketEvent {
         code?: string | number;
     } | null;
 }
+export interface SFSocketEventMap {
+    [NamesDict.MESSAGE]: ISFSocketEvent;
+}
 export declare class SFSocket {
     static instances: SFSocket[];
     static isReady: boolean;
     static ready(): void;
     config: ISFSocketConfig;
     channels: IChannels;
-    eventsDispatcher: EventsDispatcher;
+    eventsDispatcher: EventsDispatcher<SFSocketEventMap>;
     connection: ConnectionManager;
     hasStorage: boolean;
     constructor(options?: ISFSocketConfig);
@@ -39,8 +44,8 @@ export declare class SFSocket {
     leave(data: string[]): boolean;
     listen(channelsNames: string[]): void;
     stopListen(channelNames: string[]): void;
-    subscribe(eventName: string, data: any, channel?: string): ConnectionManager;
-    unsubscribe(eventName: string, data: any, channel?: string): ConnectionManager;
+    subscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>, channel?: string): ConnectionManager;
+    unsubscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>, channel?: string): ConnectionManager;
     channel(channelName: string): Channel;
     addChannel(name: string, socket: SFSocket): Channel;
     joinChannel(chanelName: string): boolean;
@@ -55,4 +60,4 @@ export declare class SFSocket {
     setStorage(args: string[]): void | null;
     clearStorage(): void | null;
 }
-//# sourceMappingURL=sfSocket.d.ts.map
+//# sourceMappingURL=SFSocket.d.ts.map

@@ -1,8 +1,8 @@
-import { UndescribedCallbackFunction } from './types';
-import Connection from './connection/Connection';
+import { UndescribedCallbackFunction } from '../types';
+import Connection from '../connection/Connection';
 import TransportConnection, { ITransportHooks } from './TransportConnection';
-import { ISFSocketConfig } from './SFSocket';
-import { NamesDict } from './eventdispatcher/events';
+import { ISFSocketConfig } from '../SFSocket';
+import { NamesDict } from '../eventdispatcher/events';
 
 export interface IRunner {
   abort: () => void;

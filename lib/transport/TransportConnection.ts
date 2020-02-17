@@ -1,6 +1,6 @@
-import EventsDispatcher from './eventdispatcher/EventsDispatcher';
-import { ISFSocketConfig, ISFSocketEvent } from './SFSocket';
-import { NamesDict } from './eventdispatcher/events';
+import EventsDispatcher from '../eventdispatcher/EventsDispatcher';
+import { ISFSocketConfig, ISFSocketEvent } from '../SFSocket';
+import { NamesDict } from '../eventdispatcher/events';
 
 export interface ITransportHooks {
   url: string;
@@ -13,9 +13,12 @@ export interface ITransportHooks {
  * Lists events that can be emitted by `TransportConnection` class
  */
 export interface TransportEventMap {
-  [NamesDict.INITIALIZED]: ISFSocketEvent,
+  [NamesDict.INITIALIZED]: undefined,
   [NamesDict.ERROR]: ISFSocketEvent,
   [NamesDict.MESSAGE]: ISFSocketEvent,
+  [NamesDict.CLOSED]: ISFSocketEvent,
+  [NamesDict.OPEN]: undefined,
+  [NamesDict.CONNECTING]: undefined,
 }
 
 export default class TransportConnection extends EventsDispatcher<TransportEventMap> {
@@ -58,7 +61,12 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
       // Workaround for MobileSafari bug (see https://gist.github.com/2052006)
       setTimeout(() => {
         this.onError(e);
-        this.changeState(NamesDict.CLOSED);
+        this.onClosed({
+          type: 'sfSocket:error',
+          data: null,
+          error: e,
+          context: {},
+        });
       });
       return false;
     }
@@ -118,7 +126,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
 
   private onClose(closeEvent?: CloseEvent) {
     if (closeEvent) {
-      this.changeState(NamesDict.CLOSED, {
+      this.onClosed({
         type: closeEvent.wasClean ? 'sfSocket:closed' : 'sfSocket:error',
         data: closeEvent.wasClean ? closeEvent.reason : null,
         error: closeEvent.wasClean ? null : closeEvent.reason,
@@ -127,7 +135,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
         },
       });
     } else {
-      this.changeState(NamesDict.CLOSED, {
+      this.onClosed({
         type: 'sfSocket:closed',
         data: null,
         error: 'Closed for unknown reason',
@@ -162,8 +170,13 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
     };
   }
 
-  private changeState(state: NamesDict, params?: ISFSocketEvent) {
+  private changeState(state: NamesDict.OPEN | NamesDict.CONNECTING | NamesDict.INITIALIZED) {
     this.state = state;
-    this.emit(state, params);
+    this.emit(state, undefined);
+  }
+
+  private onClosed(params: ISFSocketEvent) {
+    this.state = NamesDict.CLOSED;
+    this.emit(NamesDict.CLOSED, params);
   }
 }

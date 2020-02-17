@@ -1,6 +1,6 @@
 import EventsDispatcher from '../eventdispatcher/EventsDispatcher';
 import { ISFSocketEvent } from '../SFSocket';
-import TransportConnection from '../TransportConnection';
+import TransportConnection from '../transport/TransportConnection';
 import { decodeMessage, encodeMessage, prepareCloseAction } from '../messageCodingUtils';
 import { NamesDict } from '../eventdispatcher/events';
 
@@ -12,6 +12,16 @@ export interface ConnectionEventMap {
   [NamesDict.ERROR]: ISFSocketEvent,
   [NamesDict.MESSAGE]: ISFSocketEvent,
 }
+
+
+export interface EventWithCode {
+  context: { code: string }
+}
+
+const isEventWithCode = (variableToCheck: any): variableToCheck is EventWithCode => (
+  variableToCheck.context
+    && typeof variableToCheck.context.code !== 'undefined'
+);
 
 export default class Connection extends EventsDispatcher<ConnectionEventMap> {
   id: string;
@@ -59,15 +69,15 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
     };
 
     const listeners = {
-      message: (messageEvent: MessageEvent) => {
+      message: (messageEvent: ISFSocketEvent) => {
         let sfSocketEvent = null;
         try {
-          sfSocketEvent = decodeMessage(messageEvent.data);
+          sfSocketEvent = decodeMessage(messageEvent.data!);
         } catch (e) {
           this.emit(NamesDict.ERROR, {
             type: 'MessageParseError',
             error: e,
-            data: typeof messageEvent === 'string' ? messageEvent : JSON.stringify(messageEvent),
+            data: JSON.stringify(messageEvent),
           });
         }
 
@@ -93,12 +103,12 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
       closed: (closeEvent: ISFSocketEvent) => { // TODO
         unbindListeners(listeners);
 
-        if (closeEvent && closeEvent.context && closeEvent.context.code) {
+        if (isEventWithCode(closeEvent)) {
           this.handleCloseEvent(closeEvent);
         }
 
         this.transport = null;
-        this.emit(NamesDict.CLOSED);
+        this.emit(NamesDict.CLOSED, closeEvent);
       },
     };
 

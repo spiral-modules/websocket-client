@@ -5,7 +5,7 @@ import {
   IErrorCallbacks,
 } from './types';
 import EventsDispatcher from '../eventdispatcher/EventsDispatcher';
-import Transport, { IRunner, ITransport } from '../Transport';
+import Transport, { IRunner, ITransport } from '../transport/Transport';
 import Connection from './Connection';
 import { ISFSocketConfig, ISFSocketEvent } from '../SFSocket';
 

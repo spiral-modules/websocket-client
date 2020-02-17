@@ -1,9 +1,8 @@
-import { UndescribedCallbackFunction } from './types';
-import EventsDispatcher from './eventdispatcher/EventsDispatcher';
+import { UEventCallback } from './types';
 import { SFSocket } from './SFSocket';
-import { NamesDict } from './eventdispatcher/events';
+import { ConnectionManagerEventMap } from './connection/ConnectionManager';
 
-export default class Channel extends EventsDispatcher {
+export default class Channel {
   name: string;
 
   socket: SFSocket;
@@ -13,8 +12,6 @@ export default class Channel extends EventsDispatcher {
   subscriptionCancelled: boolean;
 
   constructor(name: string, socket: SFSocket) {
-    super();
-
     this.name = name;
     this.socket = socket;
     this.subscribed = false;
@@ -39,11 +36,11 @@ export default class Channel extends EventsDispatcher {
     this.socket.joinChannel(this.name);
   }
 
-  subscribe(eventName: NamesDict, callback: UndescribedCallbackFunction) {
+  subscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>) {
     this.socket.subscribe(eventName, callback, this.name);
   }
 
-  unsubscribe(eventName: NamesDict, callback: UndescribedCallbackFunction) {
+  unsubscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>) {
     this.socket.unsubscribe(eventName, callback, this.name);
   }
 
