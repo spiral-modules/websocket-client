@@ -7,7 +7,7 @@ import {
 import EventsDispatcher from '../eventdispatcher/EventsDispatcher';
 import Transport, { IRunner, ITransport } from '../transport/Transport';
 import Connection from './Connection';
-import { ISFSocketConfig, ISFSocketEvent } from '../SFSocket';
+import { ISFSocketConfig, ISFSocketEvent, SFSocketEventType } from '../SFSocket';
 
 import { NamesDict } from '../eventdispatcher/events';
 
@@ -135,7 +135,7 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
     private retryIn(delay: number) {
       if (delay > 0) {
         this.emit(NamesDict.CONNECTING, {
-          type: 'sfSocket:connecting',
+          type: SFSocketEventType.CONNECTING,
           data: String(Math.round(delay / 1000)),
           error: null,
         });
@@ -196,7 +196,7 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
       const withErrorEmitted = (callback: UndescribedCallbackFunction) => (result: IAction) => {
         if (result.error) {
           this.emit(NamesDict.ERROR, {
-            type: 'sfSocket:error',
+            type: SFSocketEventType.ERROR,
             data: null,
             error: result.error,
           });
