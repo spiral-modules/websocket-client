@@ -2,7 +2,7 @@ import { UndescribedCallbackFunction } from './types';
 import Connection from './connection/Connection';
 import TransportConnection, { ITransportHooks } from './TransportConnection';
 import { ISFSocketConfig } from './SFSocket';
-import { EventType } from './eventdispatcher/events';
+import { NamesDict } from './eventdispatcher/events';
 
 export interface IRunner {
   abort: () => void;
@@ -47,18 +47,18 @@ export default class Transport implements ITransport {
     );
 
     const onInitialized = () => {
-      transport.unbind(EventType.INITIALIZED, onInitialized);
+      transport.unbind(NamesDict.INITIALIZED, onInitialized);
       transport.connect();
     };
 
     const unbindListeners = () => {
-      transport.unbind(EventType.INITIALIZED, onInitialized);
+      transport.unbind(NamesDict.INITIALIZED, onInitialized);
       // eslint-disable-next-line no-use-before-define
-      transport.unbind(EventType.OPEN, onOpen);
+      transport.unbind(NamesDict.OPEN, onOpen);
       // eslint-disable-next-line no-use-before-define
-      transport.unbind(EventType.ERROR, onError);
+      transport.unbind(NamesDict.ERROR, onError);
       // eslint-disable-next-line no-use-before-define
-      transport.unbind(EventType.CLOSED, onClosed);
+      transport.unbind(NamesDict.CLOSED, onClosed);
     };
 
     const onOpen = () => {
@@ -77,10 +77,10 @@ export default class Transport implements ITransport {
       unbindListeners();
     };
 
-    transport.bind(EventType.INITIALIZED, onInitialized);
-    transport.bind(EventType.OPEN, onOpen);
-    transport.bind(EventType.ERROR, onError);
-    transport.bind(EventType.CLOSED, onClosed);
+    transport.bind(NamesDict.INITIALIZED, onInitialized);
+    transport.bind(NamesDict.OPEN, onOpen);
+    transport.bind(NamesDict.ERROR, onError);
+    transport.bind(NamesDict.CLOSED, onClosed);
 
     transport.initialize();
 

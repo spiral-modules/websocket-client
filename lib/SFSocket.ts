@@ -1,8 +1,8 @@
-import { UndescribedCallbackFunction } from './types';
+import { UEventCallback } from './types';
 import Channel from './Channel';
-import ConnectionManager, { ConnectionState } from './connection/ConnectionManager';
+import ConnectionManager, { ConnectionManagerEventMap } from './connection/ConnectionManager';
 import { defaultConfig, STORAGE_KEY } from './constants';
-import { EventType } from './eventdispatcher/events';
+import { NamesDict } from './eventdispatcher/events';
 import EventsDispatcher from './eventdispatcher/EventsDispatcher';
 
 const CONNECTION_EVENTS = {
@@ -35,6 +35,10 @@ export interface ISFSocketEvent {
   } | null
 }
 
+export interface SFSocketEventMap {
+  [NamesDict.MESSAGE]: ISFSocketEvent
+}
+
 export class SFSocket {
   static instances: SFSocket[] = [];
 
@@ -52,7 +56,7 @@ export class SFSocket {
 
   channels: IChannels;
 
-  eventsDispatcher: EventsDispatcher;
+  eventsDispatcher: EventsDispatcher<SFSocketEventMap>;
 
   connection: ConnectionManager;
 
@@ -77,25 +81,25 @@ export class SFSocket {
 
     this.connection = new ConnectionManager(this.config);
 
-    this.connection.bind(EventType.CONNECTED, () => {
+    this.connection.bind(NamesDict.CONNECTED, () => {
       Object.keys(this.channels).forEach((channelName) => {
         this.subscribeChannel(channelName);
       });
     });
 
-    this.connection.bind(EventType.MESSAGE, (event: any) => {
-      this.eventsDispatcher.emit(EventType.MESSAGE, event);
+    this.connection.bind(NamesDict.MESSAGE, (event: any) => {
+      this.eventsDispatcher.emit(NamesDict.MESSAGE, event);
     });
 
-    this.connection.bind(EventType.CONNECTING, () => {
+    this.connection.bind(NamesDict.CONNECTING, () => {
       this.channelsDisconnect();
     });
 
-    this.connection.bind(EventType.DISCONNECTED, () => {
+    this.connection.bind(NamesDict.DISCONNECTED, () => {
       this.channelsDisconnect();
     });
 
-    this.connection.bind(EventType.ERROR, (err: Error) => {
+    this.connection.bind(NamesDict.ERROR, (err: ISFSocketEvent) => {
       console.error(err); // eslint-disable-line no-console
     });
 
@@ -139,7 +143,7 @@ export class SFSocket {
 
   listen(channelsNames: string[]) {
     channelsNames.forEach((channelsName) => {
-      if (this.connection.state === ConnectionState.CONNECTED) {
+      if (this.connection.isConnected()) {
         this.joinChannel(channelsName);
       } else {
         this.subscribeChannel(channelsName);
@@ -150,17 +154,19 @@ export class SFSocket {
   stopListen(channelNames: string[]) {
     channelNames.forEach((channelName) => {
       const removedChannel = this.removeChannel(channelName);
-      if (removedChannel && this.connection.state === ConnectionState.CONNECTED) {
+      if (removedChannel && this.connection.isConnected()) {
         removedChannel.leaveChannel();
       }
     });
   }
 
-  subscribe(eventName: EventType, callback: UndescribedCallbackFunction, channel?: string) { // TODO
+  // TODO: what was that TODO about? Test if works and remove
+  subscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>, channel?: string) {
     return this.connection.bind(eventName, callback, channel);
   }
 
-  unsubscribe(eventName: EventType, callback: UndescribedCallbackFunction, channel?: string) { // TODO
+  // TODO: what was that TODO about? Test if works and remove
+  unsubscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>, channel?: string) {
     return this.connection.unbind(eventName, callback, channel);
   }
 
@@ -205,7 +211,7 @@ export class SFSocket {
 
     if (channel.subscriptionCancelled) {
       channel.reinstateSubscription();
-    } else if (this.connection.state === ConnectionState.CONNECTED) {
+    } else if (this.connection.isConnected()) {
       channel.join();
     }
     return channel;

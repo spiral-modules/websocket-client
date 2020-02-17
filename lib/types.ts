@@ -1,4 +1,4 @@
-import { EventType } from 'eventdispatcher/events';
+import { NamesDict } from 'eventdispatcher/events';
 import { ISFSocketEvent } from './SFSocket';
 
 export interface ICallback<F = UndescribedCallbackFunction> {
@@ -20,14 +20,14 @@ export type UndescribedCallbackFunction = Function;
  * This also limits which events can be bind in EventDispatcher
  */
 export interface SFEventMap {
-    [EventType.CONNECTING]: ISFSocketEvent,
-    [EventType.CONNECTED]: undefined,
-    [EventType.DISCONNECTED]: undefined,
-    [EventType.UNAVAILABLE]: undefined,
-    [EventType.MESSAGE]: ISFSocketEvent,
-    [EventType.ERROR]: ISFSocketEvent,
-    [EventType.CLOSED]: ISFSocketEvent,
-    [EventType.INITIALIZED]: undefined,
+    [NamesDict.CONNECTING]: ISFSocketEvent,
+    [NamesDict.CONNECTED]: undefined,
+    [NamesDict.DISCONNECTED]: undefined,
+    [NamesDict.UNAVAILABLE]: undefined,
+    [NamesDict.MESSAGE]: ISFSocketEvent,
+    [NamesDict.ERROR]: ISFSocketEvent,
+    [NamesDict.CLOSED]: ISFSocketEvent,
+    [NamesDict.INITIALIZED]: undefined,
 }
 
 export type EventCallback<K extends keyof SFEventMap> = (data: SFEventMap[K]) => any;

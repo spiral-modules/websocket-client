@@ -1,4 +1,7 @@
-export enum EventType {
+/**
+ * Dictionary of event names used across everywhere
+ */
+export enum NamesDict {
   CONNECTED= 'connected',
   MESSAGE='message',
   CONNECTING='connecting',

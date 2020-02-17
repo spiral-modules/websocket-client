@@ -1,6 +1,6 @@
 /* eslint-disable no-new */
 import WS from 'jest-websocket-mock';
-import { EventType } from '../eventdispatcher/events';
+import { NamesDict } from '../eventdispatcher/events';
 import { SFSocket } from '../index';
 import { makeTestSocketUrl, socketOptions } from '../mock-data';
 
@@ -30,7 +30,7 @@ describe('sfSocket subscriptions', () => {
 
     SFSocket.ready();
 
-    ClientSocket.subscribe(EventType.CONNECTED, websocketCallback);
+    ClientSocket.subscribe(NamesDict.CONNECTED, websocketCallback);
 
     await Server.connected;
 
@@ -46,7 +46,7 @@ describe('sfSocket subscriptions', () => {
     const ClientSocket = new SFSocket(socketOptions);
     SFSocket.ready();
 
-    ClientSocket.subscribe(EventType.MESSAGE, websocketCallback);
+    ClientSocket.subscribe(NamesDict.MESSAGE, websocketCallback);
 
     await Server.connected;
 
@@ -65,7 +65,7 @@ describe('sfSocket subscriptions', () => {
     const ClientSocket = new SFSocket(socketOptions);
     SFSocket.ready();
 
-    ClientSocket.subscribe(EventType.MESSAGE, websocketCallback);
+    ClientSocket.subscribe(NamesDict.MESSAGE, websocketCallback);
 
     await Server.connected;
 
@@ -91,7 +91,7 @@ describe('sfSocket subscriptions', () => {
     const ClientSocket = new SFSocket(socketOptions);
     SFSocket.ready();
 
-    ClientSocket.subscribe(EventType.ERROR, websocketCallback);
+    ClientSocket.subscribe(NamesDict.ERROR, websocketCallback);
 
     await Server.connected;
 
@@ -113,7 +113,7 @@ describe('sfSocket subscriptions', () => {
     const ClientSocket = new SFSocket(socketOptions);
     SFSocket.ready();
 
-    ClientSocket.subscribe(EventType.CLOSED, socketCallback);
+    ClientSocket.subscribe(NamesDict.CLOSED, socketCallback);
 
     await Server.connected;
 

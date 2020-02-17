@@ -1,6 +1,6 @@
 import EventsDispatcher from './eventdispatcher/EventsDispatcher';
 import { ISFSocketConfig, ISFSocketEvent } from './SFSocket';
-import { EventType } from './eventdispatcher/events';
+import { NamesDict } from './eventdispatcher/events';
 
 export interface ITransportHooks {
   url: string;
@@ -13,9 +13,9 @@ export interface ITransportHooks {
  * Lists events that can be emitted by `TransportConnection` class
  */
 export interface TransportEventMap {
-  [EventType.INITIALIZED]: ISFSocketEvent,
-  [EventType.ERROR]: ISFSocketEvent,
-  [EventType.MESSAGE]: ISFSocketEvent,
+  [NamesDict.INITIALIZED]: ISFSocketEvent,
+  [NamesDict.ERROR]: ISFSocketEvent,
+  [NamesDict.MESSAGE]: ISFSocketEvent,
 }
 
 export default class TransportConnection extends EventsDispatcher<TransportEventMap> {
@@ -35,7 +35,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
       const self = this;
 
       if (self.hooks.isInitialized()) {
-        self.changeState(EventType.INITIALIZED);
+        self.changeState(NamesDict.INITIALIZED);
       } else {
         self.onClose();
       }
@@ -58,13 +58,13 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
       // Workaround for MobileSafari bug (see https://gist.github.com/2052006)
       setTimeout(() => {
         this.onError(e);
-        this.changeState(EventType.CLOSED);
+        this.changeState(NamesDict.CLOSED);
       });
       return false;
     }
 
     this.bindListeners();
-    this.changeState(EventType.CONNECTING);
+    this.changeState(NamesDict.CONNECTING);
     return true;
   }
 
@@ -103,13 +103,13 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
 
 
   private onOpen() {
-    this.changeState(EventType.OPEN);
+    this.changeState(NamesDict.OPEN);
     if (!this.socket) return;
     this.socket.onopen = null;
   }
 
   private onError(error?: string) {
-    this.emit(EventType.ERROR, {
+    this.emit(NamesDict.ERROR, {
       type: 'sfSocket:error',
       error: error || 'websocket connection error',
       data: null,
@@ -118,7 +118,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
 
   private onClose(closeEvent?: CloseEvent) {
     if (closeEvent) {
-      this.changeState(EventType.CLOSED, {
+      this.changeState(NamesDict.CLOSED, {
         type: closeEvent.wasClean ? 'sfSocket:closed' : 'sfSocket:error',
         data: closeEvent.wasClean ? closeEvent.reason : null,
         error: closeEvent.wasClean ? null : closeEvent.reason,
@@ -127,7 +127,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
         },
       });
     } else {
-      this.changeState(EventType.CLOSED, {
+      this.changeState(NamesDict.CLOSED, {
         type: 'sfSocket:closed',
         data: null,
         error: 'Closed for unknown reason',
@@ -139,7 +139,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
   }
 
   private onMessage(message: MessageEvent) {
-    this.emit(EventType.MESSAGE, {
+    this.emit(NamesDict.MESSAGE, {
       type: 'sfSocket:message',
       data: typeof message.data === 'string' ? message.data : JSON.stringify(message.data),
       error: null,
@@ -162,7 +162,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
     };
   }
 
-  private changeState(state: EventType, params?: ISFSocketEvent) {
+  private changeState(state: NamesDict, params?: ISFSocketEvent) {
     this.state = state;
     this.emit(state, params);
   }
