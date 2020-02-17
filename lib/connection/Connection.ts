@@ -42,7 +42,7 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
 
   sendEvent(name: string, data: any, channel?: string) : boolean {
     const event: ISFSocketEvent = {
-      type: name,
+      type: name as any, // TODO: That's not really a ISFSocketEvent
       data,
       error: null,
     };
