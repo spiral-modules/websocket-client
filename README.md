@@ -100,10 +100,10 @@ SFSocket works in a particular format:
 
 ```js
 // SFSocket sends
-ws.sendEvent({ cmd: 'join', args: ['command arguments']}) // `args` field may contain names of channels
-
-// SFSocket is expected
-ServerSocket.send(JSON.stringify({ topic: 'message', payload: 'any structure' })) // `topic` field may contain channel names
+const cmd = 'join';
+const data = ['command arguments'];
+const channel = 'channel_1'; // Optional
+ws.sendEvent(cmd, data, channel); // `data` field may contain names of channels
 ````
 
 ### Events
@@ -112,8 +112,8 @@ SFSocket events' formats:
 
 ##### Message Event
 
-```js
-const MessageEvent = {
+```typescript
+const MessageEvent: ISFSocketEvent = {
   context: {
     channel: 'channel', // optional
     code: 1001, // optional
@@ -126,8 +126,8 @@ const MessageEvent = {
 
 ##### Error Event
 
-```js
-const ErrorEvent = {
+```typescript
+const ErrorEvent: ISFSocketEvent = {
   context: {
     channel: 'channel', // optional
     code: 1006, // optional
