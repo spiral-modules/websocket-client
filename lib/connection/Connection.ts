@@ -48,7 +48,7 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
     };
 
     if (channel) {
-      event.context = { channel };
+      event.context = { channel }; // TODO: Why are we packing channel if it's ignored in 'encode' completely
     }
 
     return this.send(encodeMessage(event));
@@ -72,7 +72,7 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
       message: (messageEvent: ISFSocketEvent) => {
         let sfSocketEvent = null;
         try {
-          sfSocketEvent = decodeMessage(messageEvent.data!);
+          sfSocketEvent = decodeMessage(messageEvent.data);
         } catch (e) {
           this.emit(NamesDict.ERROR, {
             type: SFSocketEventType.ERROR,

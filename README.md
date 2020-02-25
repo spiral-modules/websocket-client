@@ -99,11 +99,18 @@ ws.subscribe('closed', () => console.log('closed'));
 SFSocket works in a particular format:
 
 ```js
-// SFSocket sends
-ws.sendEvent({ cmd: 'join', args: ['command arguments']}) // `args` field may contain names of channels
+// Send join or leave command manually
+const cmd = 'join'; // 'join' or 'leave'
+const data = ['command arguments']; // List of channels
+ws.sendEvent(cmd, data);
+````
 
-// SFSocket is expected
-ServerSocket.send(JSON.stringify({ topic: 'message', payload: 'any structure' })) // `topic` field may contain channel names
+````js
+// Send custom command
+const cmd = 'custom';
+const data = ['command arguments']; // any data
+const channel = 'channel_1'; // Optional param to select channel to send
+ws.sendEvent(cmd, data, channel);
 ````
 
 ### Events
@@ -112,8 +119,8 @@ SFSocket events' formats:
 
 ##### Message Event
 
-```js
-const MessageEvent = {
+```typescript
+const MessageEvent: ISFSocketEvent = {
   context: {
     channel: 'channel', // optional
     code: 1001, // optional
@@ -126,8 +133,8 @@ const MessageEvent = {
 
 ##### Error Event
 
-```js
-const ErrorEvent = {
+```typescript
+const ErrorEvent: ISFSocketEvent = {
   context: {
     channel: 'channel', // optional
     code: 1006, // optional
@@ -151,3 +158,10 @@ Development
 ##### Windows
 
 On windows execute `git config core.autocrlf false` to disable automatic line ending conversion.
+
+##### TODO
+
+* What kind of commands we are expected to send on server. Currently only 'join' and 'leave' are sending something legit. Channel name in 'sendEvent' is completely ignored.
+* We don't need separate 'sfSocket' prefix as all binds are already having a type and we can either omit it or remove completely
+* Connection callback can and should be made into promise. Or why do we might need flow of error events? Needs research.
+* Needs documenting that channel names should not have '@' symbol and why

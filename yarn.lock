@@ -2340,6 +2340,11 @@ electron-to-chromium@^1.3.341:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.348.tgz#61fa7d43f6c4fd8b046b0b69213cb55b7a4c76a5"
   integrity sha512-6O0IInybavGdYtcbI4ryF/9e3Qi8/soi6C68ELRseJuTwQPKq39uGgVVeQHG28t69Sgsky09nXBRhUiFXsZyFQ==
 
+ellipsize@0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/ellipsize/-/ellipsize-0.0.2.tgz#b56b952a7b40f0a6cd11e1c86d23d6acdffcb1fe"
+  integrity sha1-tWuVKntA8KbNEeHIbSPWrN/8sf4=
+
 elliptic@^6.0.0:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.2.tgz#05c5678d7173c049d8ca433552224a495d0e3762"
@@ -2525,6 +2530,13 @@ eslint-plugin-jsx-a11y@^6.2.3:
     emoji-regex "^7.0.2"
     has "^1.0.3"
     jsx-ast-utils "^2.2.1"
+
+eslint-plugin-output-todo-comments@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-output-todo-comments/-/eslint-plugin-output-todo-comments-0.0.7.tgz#a28f4f4ea1c4e4c4004dd5a55896b84f5aec88cf"
+  integrity sha1-oo9PTqHE5MQATdWlWJa4T1rsiM8=
+  dependencies:
+    ellipsize "0.0.2"
 
 eslint-plugin-react-hooks@^1.7.0:
   version "1.7.0"

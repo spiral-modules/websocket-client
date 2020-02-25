@@ -25,9 +25,16 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: [
+    'output-todo-comments',
     '@typescript-eslint',
   ],
   rules: {
+    'output-todo-comments/output-todo-comments': [
+      "warn", {
+        'terms': ['todo'],
+        'location': 'start',
+      }
+    ],
     "max-len": ["error", 160],
     "no-unused-vars": "off",
     "import/prefer-default-export": "off",

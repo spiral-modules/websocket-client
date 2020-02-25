@@ -2,7 +2,7 @@ import { ISFSocketEvent, SFSocketEventType } from './SFSocket';
 
 const systemSymbols = ['@'];
 
-export const decodeMessage = (messageEvent: string): ISFSocketEvent => {
+export const decodeMessage = (messageEvent: string | null): ISFSocketEvent => {
   if (messageEvent) {
     const messageData = JSON.parse(messageEvent);
 
@@ -30,7 +30,7 @@ export const decodeMessage = (messageEvent: string): ISFSocketEvent => {
 
   return {
     type: SFSocketEventType.ERROR,
-    error: `MessageEvent: ${messageEvent} not contains data property`,
+    error: 'MessageEvent has no data property',
     data: 'MessageParseError',
   };
 };
