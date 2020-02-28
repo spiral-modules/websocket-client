@@ -163,7 +163,7 @@ export class SFSocket {
     channelNames.forEach((channelName) => {
       const removedChannel = this.removeChannel(channelName);
       if (removedChannel && this.connection.isConnected()) {
-        removedChannel.leaveChannel();
+        removedChannel.leave();
       }
     });
   }
@@ -217,9 +217,7 @@ export class SFSocket {
   private subscribeChannel(channelName: string) {
     const channel = this.addChannel(channelName, this);
 
-    if (channel.subscriptionCancelled) {
-      channel.reinstateSubscription();
-    } else if (this.connection.isConnected()) {
+    if (this.connection.isConnected()) {
       channel.join();
     }
     return channel;
