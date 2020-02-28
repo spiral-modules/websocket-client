@@ -30,6 +30,4 @@ export interface SFEventMap {
     [NamesDict.INITIALIZED]: undefined,
 }
 
-export type EventCallback<K extends keyof SFEventMap> = (data: SFEventMap[K]) => any;
-
 export type UEventCallback<EventMap, K extends keyof EventMap> = (data: EventMap[K]) => any;

@@ -12,6 +12,10 @@ export interface IChannels {
 export enum SFSocketEventType {
   CONNECTING='sfSocket:connecting',
   MESSAGE='sfSocket:message',
+  CHANNEL_JOINED='channel_joined',
+  CHANNEL_JOIN_FAILED='channel_join_failed',
+  CHANNEL_LEFT='channel_left',
+  CHANNEL_LEAVE_FAILED='channel_leave_failed',
   ERROR='sfSocket:error',
   CLOSED='sfSocket:closed',
 }
@@ -35,10 +39,6 @@ export interface ISFSocketEvent {
     channel?: string,
     code?: string | number,
   } | null
-}
-
-export interface SFSocketEventMap {
-  [NamesDict.MESSAGE]: ISFSocketEvent
 }
 
 export class SFSocket {
@@ -84,14 +84,6 @@ export class SFSocket {
       });
     });
 
-    this.cMgr.bind(NamesDict.CONNECTING, () => {
-      this.channelsDisconnect();
-    });
-
-    this.cMgr.bind(NamesDict.DISCONNECTED, () => {
-      this.channelsDisconnect();
-    });
-
     this.cMgr.bind(NamesDict.ERROR, (err: ISFSocketEvent) => {
       console.error(err); // eslint-disable-line no-console
     });
@@ -132,25 +124,26 @@ export class SFSocket {
     });
   }
 
-  // TODO: what was that TODO about? Test if works and remove
+  /**
+   * Subscribe to event globally
+   * @param eventName
+   * @param callback
+   * @param channel - optional channel to monitor. Note subscribing to channel here is not creating auto-rejoinable channel.
+   * Join channel explicitly to make it auto-rejoinable
+   */
   subscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>, channel?: string) {
     return this.cMgr.bind(eventName, callback, channel);
   }
 
-  // TODO: what was that TODO about? Test if works and remove
+  /**
+   * Unsubscribe from event globally
+   * @param eventName
+   * @param callback
+   * @param channel - optional channel to monitor. Note subscribing to channel here is not creating auto-rejoinable channel.
+   * Join channel explicitly to make it auto-rejoinable
+   */
   unsubscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>, channel?: string) {
     return this.cMgr.unbind(eventName, callback, channel);
-  }
-
-  // TODO: Why we want to add channel from other socket to instance
-  /**
-   * @deprecated
-   */
-  addChannel(name : string, socket : SFSocket) {
-    if (!this.channels[name]) {
-      this.channels[name] = new Channel(name, socket);
-    }
-    return this.channels[name];
   }
 
   joinChannel(chanelName: string) {
@@ -158,9 +151,6 @@ export class SFSocket {
       throw new Error(`Channel ${chanelName} already exists`);
     }
     this.channels[chanelName] = new Channel(chanelName, this);
-    if (this.cMgr.isConnected()) {
-      this.channels[chanelName].join();
-    }
     return this.channels[chanelName];
   }
 
@@ -176,9 +166,5 @@ export class SFSocket {
 
   getChannel(name: string): Channel {
     return this.channels[name];
-  }
-
-  private channelsDisconnect() {
-    Object.values(this.channels).forEach((channel: Channel) => channel.disconnect());
   }
 }
