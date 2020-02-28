@@ -102,7 +102,7 @@ SFSocket works in a particular format:
 // Send join or leave command manually
 const cmd = 'join'; // 'join' or 'leave'
 const data = ['command arguments']; // List of channels
-ws.sendEvent(cmd, data);
+ws.sendCommand(cmd, data);
 ````
 
 ````js
@@ -110,7 +110,7 @@ ws.sendEvent(cmd, data);
 const cmd = 'custom';
 const data = ['command arguments']; // any data
 const channel = 'channel_1'; // Optional param to select channel to send
-ws.sendEvent(cmd, data, channel);
+ws.sendCommand(cmd, data, channel);
 ````
 
 ### Events
@@ -161,7 +161,7 @@ On windows execute `git config core.autocrlf false` to disable automatic line en
 
 ##### TODO
 
-* What kind of commands we are expected to send on server. Currently only 'join' and 'leave' are sending something legit. Channel name in 'sendEvent' is completely ignored.
+* What kind of commands we are expected to send on server. Currently only 'join' and 'leave' are sending something legit. Channel name in 'sendCommand' is completely ignored.
 * We don't need separate 'sfSocket' prefix as all binds are already having a type and we can either omit it or remove completely
 * Connection callback can and should be made into promise. Or why do we might need flow of error events? Needs research.
 * Needs documenting that channel names should not have '@' symbol and why

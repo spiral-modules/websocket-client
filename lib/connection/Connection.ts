@@ -13,6 +13,13 @@ export interface ConnectionEventMap {
   [NamesDict.MESSAGE]: ISFSocketEvent,
 }
 
+export enum ConnectionCommands {
+  JOIN = 'join',
+  LEAVE = 'leave',
+}
+
+export const SystemCommands = new Set<string>([ConnectionCommands.JOIN, ConnectionCommands.LEAVE]);
+
 
 export interface EventWithCode {
   context: { code: string }
@@ -40,18 +47,35 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
     return this.transport.send(data);
   }
 
-  sendEvent(name: string, data: any, channel?: string) : boolean {
-    const event: ISFSocketEvent = {
-      type: name as any, // TODO: That's not really a ISFSocketEvent
-      data,
-      error: null,
-    };
-
-    if (channel) {
-      event.context = { channel }; // TODO: Why are we packing channel if it's ignored in 'encode' completely
+  /**
+   * Sends custom command to ws connection
+   * @param commandName - command that has custom handler on server
+   * @param payload - any serializable data
+   */
+  sendCommand(commandName: string, payload: any) : boolean {
+    if (SystemCommands.has(commandName)) {
+      throw new Error(`${commandName} is a reserved command, cant be sent manually`);
     }
 
-    return this.send(encodeMessage(event));
+    return this.send(encodeMessage({ type: commandName, payload }));
+  }
+
+  /**
+   * Sends command to join specific channels
+   * @param channels
+   */
+  sendJoin(channels: string[]) {
+    this.send(encodeMessage({
+      type: ConnectionCommands.JOIN,
+      payload: channels,
+    }));
+  }
+
+  sendLeave(channels: string[]) {
+    this.send(encodeMessage({
+      type: ConnectionCommands.LEAVE,
+      payload: channels,
+    }));
   }
 
   close() {

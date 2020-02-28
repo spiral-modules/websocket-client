@@ -14,7 +14,7 @@ describe('sfSocket connections', () => {
     const ClientSocket = new SFSocket(socketOptions);
 
     SFSocket.ready();
-    expect(ClientSocket.connection.state).toBe(NamesDict.CONNECTING);
+    expect(ClientSocket.cMgr.state).toBe(NamesDict.CONNECTING);
   });
 
   test('sfSocket can receive message with error', async () => {

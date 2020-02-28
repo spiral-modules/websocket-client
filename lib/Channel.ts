@@ -1,6 +1,6 @@
 import { UEventCallback } from './types';
 import { SFSocket } from './SFSocket';
-import { ConnectionManagerEventMap } from './connection/ConnectionManager';
+import ConnectionManager, { ConnectionManagerEventMap } from './connection/ConnectionManager';
 
 export enum ChannelStatus {
   CLOSED = 'closed', // Connection command not yet sent or leave commang
@@ -17,11 +17,14 @@ export default class Channel {
 
   private socket: SFSocket;
 
+  private cMgr: ConnectionManager;
+
   subscribed: boolean;
 
   constructor(name: string, socket: SFSocket) {
     this.name = name;
     this.socket = socket;
+    this.cMgr = socket.cMgr;
     this.subscribed = false;
   }
 
@@ -29,23 +32,11 @@ export default class Channel {
     return this.channelStatus;
   }
 
-  /**
-   * Sends custom event to this channel on server
-   * @param customEvent
-   * @param payload any serializable payload
-   */
-  trigger(customEvent: string, payload: any) {
-    if (this.status !== ChannelStatus.JOINED) {
-      throw new Error('Cant send command to inactive channel');
-    }
-    return this.socket.sendEvent(customEvent, payload, this.name);
-  }
-
   join() {
     if (this.subscribed) return;
     this.subscribed = true;
     this.channelStatus = ChannelStatus.JOINING;
-    this.socket.joinChannel(this.name);
+    this.cMgr.sendJoin([this.name]);
   }
 
   subscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>) {
@@ -59,6 +50,6 @@ export default class Channel {
   leave() {
     this.subscribed = false;
     this.channelStatus = ChannelStatus.LEAVING;
-    this.socket.leaveChannel(this.name);
+    this.cMgr.sendLeave([this.name]);
   }
 }

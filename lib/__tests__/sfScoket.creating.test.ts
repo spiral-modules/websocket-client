@@ -49,7 +49,7 @@ describe('sfSocket connections', () => {
     const ws = new SFSocket(socketOptions);
     SFSocket.ready();
 
-    expect(ws.connection.state).toBe(NamesDict.CONNECTING);
+    expect(ws.cMgr.state).toBe(NamesDict.CONNECTING);
   });
 
   test('sfSocket state should be changed to disconnected', () => {
@@ -58,7 +58,7 @@ describe('sfSocket connections', () => {
 
     ws.disconnect();
 
-    expect(ws.connection.state).toBe(NamesDict.DISCONNECTED);
+    expect(ws.cMgr.state).toBe(NamesDict.DISCONNECTED);
   });
 
   test('sfSocket defaults callbacks should be created', () => {
@@ -73,7 +73,7 @@ describe('sfSocket connections', () => {
       NamesDict.ERROR,
     ];
 
-    const wsConnectionCallbacks = ws.connection.callbacks.callbacks;
+    const wsConnectionCallbacks = ws.cMgr.callbacks.callbacks;
 
     expect(wsConnectionCallbacks).not.toBeUndefined();
 

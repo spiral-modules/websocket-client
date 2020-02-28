@@ -35,10 +35,10 @@ export const decodeMessage = (messageEvent: string | null): ISFSocketEvent => {
   };
 };
 
-export const encodeMessage = (event: ISFSocketEvent): string => {
+export const encodeMessage = (event: {type: string, payload: any}): string => {
   const sfEvent = {
     cmd: event.type,
-    args: event.data,
+    args: event.payload,
   };
 
   return JSON.stringify(sfEvent);

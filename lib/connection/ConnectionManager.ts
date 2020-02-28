@@ -84,9 +84,23 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
       return false;
     }
 
-    sendEvent(name: string, data: string[], channel?: string) {
+    sendCommand(name: string, data: any) {
       if (this.connection) {
-        return this.connection.sendEvent(name, data, channel);
+        return this.connection.sendCommand(name, data);
+      }
+      return false;
+    }
+
+    sendJoin(channels: string[]) {
+      if (this.connection) {
+        this.connection.sendJoin(channels);
+      }
+      return false;
+    }
+
+    sendLeave(channels: string[]) {
+      if (this.connection) {
+        this.connection.sendLeave(channels);
       }
       return false;
     }
