@@ -11,6 +11,9 @@ export interface ConnectionEventMap {
   [NamesDict.CLOSED]: ISFSocketEvent,
   [NamesDict.ERROR]: ISFSocketEvent,
   [NamesDict.MESSAGE]: ISFSocketEvent,
+  [NamesDict.CHANNEL_JOIN_FAILED]: string[],
+  [NamesDict.CHANNEL_JOINED]: string[],
+  [NamesDict.CHANNEL_LEFT]: string[],
 }
 
 export enum ConnectionCommands {
@@ -106,14 +109,24 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
         }
 
         if (sfSocketEvent) {
-          if (sfSocketEvent.type === SFSocketEventType.ERROR) {
-            this.emit(NamesDict.ERROR, {
-              type: SFSocketEventType.ERROR,
-              data: sfSocketEvent.data,
-              error: null,
-            });
-          } else {
-            this.emit(NamesDict.MESSAGE, sfSocketEvent);
+          switch (sfSocketEvent.type) {
+            case SFSocketEventType.ERROR:
+              this.emit(NamesDict.ERROR, sfSocketEvent);
+              break;
+            case SFSocketEventType.CHANNEL_JOIN_FAILED:
+              this.emit(NamesDict.CHANNEL_JOIN_FAILED, sfSocketEvent.data as any); // TODO:
+              break;
+            case SFSocketEventType.CHANNEL_JOINED:
+              this.emit(NamesDict.CHANNEL_JOINED, sfSocketEvent.data as any); // TODO:
+              break;
+            case SFSocketEventType.CHANNEL_LEFT:
+              this.emit(NamesDict.CHANNEL_LEFT, sfSocketEvent.data as any); // TODO:
+              break;
+            case SFSocketEventType.CHANNEL_LEAVE_FAILED:
+              this.emit(NamesDict.ERROR, sfSocketEvent);
+              break;
+            default:
+              this.emit(NamesDict.MESSAGE, sfSocketEvent);
           }
         }
       },

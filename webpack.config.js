@@ -24,5 +24,7 @@ module.exports = {
   output: {
     filename: 'socket.js',
     path: path.resolve(__dirname, 'build'),
+    library: 'SFSocket',
+    libraryTarget: 'umd',
   },
 };

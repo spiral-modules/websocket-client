@@ -28,7 +28,6 @@ export interface ISFSocketConfig {
   path: string;
   unavailableTimeout?: number;
   useTLS?: boolean;
-  useStorage?: boolean;
 }
 
 export interface ISFSocketEvent {
@@ -60,8 +59,6 @@ export class SFSocket {
 
   cMgr: ConnectionManager;
 
-  hasStorage: boolean;
-
   constructor(options?: ISFSocketConfig) {
     if (!options || typeof options !== 'object') {
       throw new Error('sfSocket options should be an object');
@@ -73,8 +70,6 @@ export class SFSocket {
       ...defaultConfig,
       ...constructorOptions,
     };
-
-    this.hasStorage = Boolean(this.config.useStorage && window && window.localStorage);
 
     this.cMgr = new ConnectionManager(this.config);
 

@@ -8,7 +8,6 @@ const socketOptions: ISFSocketConfig = {
   path: '',
   unavailableTimeout: 10000,
   useTLS: false,
-  useStorage: false,
 };
 
 

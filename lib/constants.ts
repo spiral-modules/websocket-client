@@ -7,7 +7,4 @@ export const defaultConfig: ISFSocketConfig = {
   path: '',
   unavailableTimeout: 10000,
   useTLS: false,
-  useStorage: false,
 };
-
-export const STORAGE_KEY = 'sfsocket_storage';

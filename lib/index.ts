@@ -1,4 +1,5 @@
 import { SFSocket } from './SFSocket';
+import { NamesDict as eventNames } from './eventdispatcher/events';
 
 const makeSocketOptions = (wsUrl: string) => {
   const url = new URL(wsUrl);
@@ -15,6 +16,5 @@ const makeSocketOptions = (wsUrl: string) => {
   return null;
 };
 
-
-export { SFSocket, makeSocketOptions };
+export { SFSocket, makeSocketOptions, eventNames };
 export default SFSocket;

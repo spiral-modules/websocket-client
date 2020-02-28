@@ -68,7 +68,7 @@ export default class Transport implements ITransport {
       callback(null, result);
     };
 
-    const onError = (error: any) => { // TODO
+    const onError = (error: any) => {
       unbindListeners();
       callback(error);
     };

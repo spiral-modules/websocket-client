@@ -9,6 +9,9 @@ export interface ConnectionManagerEventMap {
     [NamesDict.CONNECTING]: ISFSocketEvent;
     [NamesDict.DISCONNECTED]: undefined;
     [NamesDict.CONNECTED]: undefined;
+    [NamesDict.CHANNEL_JOINED]: string[];
+    [NamesDict.CHANNEL_JOIN_FAILED]: string[];
+    [NamesDict.CHANNEL_LEFT]: string[];
     [NamesDict.ERROR]: ISFSocketEvent;
     [NamesDict.MESSAGE]: ISFSocketEvent;
     [NamesDict.CLOSED]: ISFSocketEvent;
@@ -28,7 +31,9 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
     constructor(options: ISFSocketConfig);
     connect(): void;
     send(data: string): boolean;
-    sendEvent(name: string, data: string[], channel?: string): boolean;
+    sendCommand(name: string, data: any): boolean;
+    sendJoin(channels: string[]): boolean;
+    sendLeave(channels: string[]): boolean;
     disconnect(): void;
     isConnected(): boolean;
     private startConnecting;

@@ -1,3 +1,4 @@
+import { ISFSocketEvent } from '../SFSocket';
 export interface IAction {
     action: string;
     id?: string;
@@ -8,8 +9,11 @@ export interface IErrorCallbacks {
     unavailable: (result: IAction) => void;
 }
 export interface IConnectionCallbacks {
-    message: (message: any) => void;
-    error: (error: any) => void;
+    channelJoined: (channels: string[]) => void;
+    channelJoinFailed: (channels: string[]) => void;
+    channelLeft: (channels: string[]) => void;
+    message: (message: ISFSocketEvent) => void;
+    error: (error: ISFSocketEvent) => void;
     closed: (reason: any) => void;
 }
 //# sourceMappingURL=types.d.ts.map

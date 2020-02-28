@@ -11,4 +11,7 @@ export enum NamesDict {
   INITIALIZED='initialized',
   CLOSED='closed',
   UNAVAILABLE='unavailable',
+  CHANNEL_JOINED='channel_joined',
+  CHANNEL_JOIN_FAILED='channel_join_failed',
+  CHANNEL_LEFT='channel_left',
 }

@@ -72,8 +72,8 @@ export const decodeMessage = (messageEvent: string | null): ISFSocketEvent => {
 
 export const encodeMessage = (event: { type: string, payload: any }): string => {
   const sfEvent = {
-    cmd: event.type,
-    args: event.payload,
+    topic: event.type,
+    payload: event.payload,
   };
 
   return JSON.stringify(sfEvent);
