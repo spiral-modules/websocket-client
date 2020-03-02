@@ -11,7 +11,17 @@ export interface ConnectionEventMap {
   [NamesDict.CLOSED]: ISFSocketEvent,
   [NamesDict.ERROR]: ISFSocketEvent,
   [NamesDict.MESSAGE]: ISFSocketEvent,
+  [NamesDict.CHANNEL_JOIN_FAILED]: string[],
+  [NamesDict.CHANNEL_JOINED]: string[],
+  [NamesDict.CHANNEL_LEFT]: string[],
 }
+
+export enum ConnectionCommands {
+  JOIN = 'join',
+  LEAVE = 'leave',
+}
+
+export const SystemCommands = new Set<string>([ConnectionCommands.JOIN, ConnectionCommands.LEAVE]);
 
 
 export interface EventWithCode {
@@ -40,18 +50,35 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
     return this.transport.send(data);
   }
 
-  sendEvent(name: string, data: any, channel?: string) : boolean {
-    const event: ISFSocketEvent = {
-      type: name as any, // TODO: That's not really a ISFSocketEvent
-      data,
-      error: null,
-    };
-
-    if (channel) {
-      event.context = { channel }; // TODO: Why are we packing channel if it's ignored in 'encode' completely
+  /**
+   * Sends custom command to ws connection
+   * @param commandName - command that has custom handler on server
+   * @param payload - any serializable data
+   */
+  sendCommand(commandName: string, payload: any) : boolean {
+    if (SystemCommands.has(commandName)) {
+      throw new Error(`${commandName} is a reserved command, cant be sent manually`);
     }
 
-    return this.send(encodeMessage(event));
+    return this.send(encodeMessage({ type: commandName, payload }));
+  }
+
+  /**
+   * Sends command to join specific channels
+   * @param channels
+   */
+  sendJoin(channels: string[]) {
+    this.send(encodeMessage({
+      type: ConnectionCommands.JOIN,
+      payload: channels,
+    }));
+  }
+
+  sendLeave(channels: string[]) {
+    this.send(encodeMessage({
+      type: ConnectionCommands.LEAVE,
+      payload: channels,
+    }));
   }
 
   close() {
@@ -82,14 +109,24 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
         }
 
         if (sfSocketEvent) {
-          if (sfSocketEvent.type === SFSocketEventType.ERROR) {
-            this.emit(NamesDict.ERROR, {
-              type: SFSocketEventType.ERROR,
-              data: sfSocketEvent.data,
-              error: null,
-            });
-          } else {
-            this.emit(NamesDict.MESSAGE, sfSocketEvent);
+          switch (sfSocketEvent.type) {
+            case SFSocketEventType.ERROR:
+              this.emit(NamesDict.ERROR, sfSocketEvent);
+              break;
+            case SFSocketEventType.CHANNEL_JOIN_FAILED:
+              this.emit(NamesDict.CHANNEL_JOIN_FAILED, sfSocketEvent.data as any); // TODO:
+              break;
+            case SFSocketEventType.CHANNEL_JOINED:
+              this.emit(NamesDict.CHANNEL_JOINED, sfSocketEvent.data as any); // TODO:
+              break;
+            case SFSocketEventType.CHANNEL_LEFT:
+              this.emit(NamesDict.CHANNEL_LEFT, sfSocketEvent.data as any); // TODO:
+              break;
+            case SFSocketEventType.CHANNEL_LEAVE_FAILED:
+              this.emit(NamesDict.ERROR, sfSocketEvent);
+              break;
+            default:
+              this.emit(NamesDict.MESSAGE, sfSocketEvent);
           }
         }
       },

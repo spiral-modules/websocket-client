@@ -1,59 +1,100 @@
 import { UEventCallback } from './types';
 import { SFSocket } from './SFSocket';
-import { ConnectionManagerEventMap } from './connection/ConnectionManager';
+import ConnectionManager, { ConnectionManagerEventMap } from './connection/ConnectionManager';
+import { NamesDict } from './eventdispatcher/events';
+
+export enum ChannelStatus {
+  CLOSED = 'closed', // Connection command not yet sent or leave commang
+  JOINING = 'joining', // Socket sent join command, server has not responded with OK
+  JOINED = 'joined', // Server returned OK for join command
+  LEAVING = 'leaving', // Socket sent leave command, server has not responded with OK
+  ERROR = 'error', // Last command finished with error
+}
 
 export default class Channel {
   name: string;
 
-  socket: SFSocket;
+  private channelStatus: ChannelStatus = ChannelStatus.CLOSED;
 
-  subscribed: boolean;
+  private socket: SFSocket;
 
-  subscriptionCancelled: boolean;
+  private cMgr: ConnectionManager;
+
+  /**
+   * Flag to indicate if channel should be joined
+   */
+  enabled: boolean;
 
   constructor(name: string, socket: SFSocket) {
     this.name = name;
     this.socket = socket;
-    this.subscribed = false;
-    this.subscriptionCancelled = false;
+    this.cMgr = socket.cMgr;
+    this.enabled = false;
+    this.cMgr.bind(NamesDict.DISCONNECTED, () => {
+      this.channelStatus = ChannelStatus.CLOSED; // Channel has been closed by external event
+    });
+    this.cMgr.bind(NamesDict.CHANNEL_JOIN_FAILED, (channels: string[]) => {
+      if (channels.indexOf(this.name) >= 0) {
+        this.channelStatus = ChannelStatus.CLOSED; // Channel has failed to join
+      }
+    });
+    this.cMgr.bind(NamesDict.CHANNEL_JOINED, (channels: string[]) => {
+      if (channels.indexOf(this.name) >= 0) {
+        this.channelStatus = ChannelStatus.JOINED; // Channel has failed to join
+      }
+    });
+    this.cMgr.bind(NamesDict.CHANNEL_LEFT, (channels: string[]) => {
+      if (channels.indexOf(this.name) >= 0) {
+        this.channelStatus = ChannelStatus.CLOSED; // Channel has failed to join
+      }
+    });
+    this.cMgr.bind(NamesDict.CONNECTED, () => {
+      if (this.enabled) { // if should join/re-join
+        this.sendJoinCommand();
+      }
+    });
   }
 
-  trigger(event: string, data: string[]) { // TODO
-    if (!this.subscribed) {
-      console.warn('Client event triggered before channel \'subscription_succeeded\' event'); // eslint-disable-line no-console
-    }
-    return this.socket.sendEvent(event, data, this.name);
+  get status() {
+    return this.channelStatus;
   }
 
-  disconnect() {
-    this.subscribed = false;
+  /**
+   * Channel is active and working rn
+   */
+  get isActive() {
+    return this.cMgr.isConnected() && this.channelStatus === ChannelStatus.JOINED;
   }
 
   join() {
-    if (this.subscribed) return;
-    this.subscriptionCancelled = false;
-    this.subscribed = true;
-    this.socket.joinChannel(this.name);
+    if (this.enabled) return;
+    this.enabled = true;
+    if (this.cMgr.isConnected()) {
+      this.sendJoinCommand();
+    }
+  }
+
+  private sendJoinCommand() {
+    if (this.channelStatus !== ChannelStatus.JOINING) {
+      this.channelStatus = ChannelStatus.JOINING;
+      this.cMgr.sendJoin([this.name]);
+    }
   }
 
   subscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>) {
-    this.socket.subscribe(eventName, callback, this.name);
+    this.cMgr.bind(eventName, callback, this.name);
   }
 
   unsubscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>) {
-    this.socket.unsubscribe(eventName, callback, this.name);
+    this.cMgr.unbind(eventName, callback, this.name);
   }
 
-  leaveChannel() {
-    this.subscribed = false;
-    this.socket.leaveChannel(this.name);
-  }
-
-  cancelSubscription() {
-    this.subscriptionCancelled = true;
-  }
-
-  reinstateSubscription() {
-    this.subscriptionCancelled = false;
+  leave() {
+    if (this.channelStatus !== ChannelStatus.LEAVING) {
+      this.enabled = false;
+      this.channelStatus = ChannelStatus.LEAVING;
+      this.cMgr.sendLeave([this.name]);
+      this.channelStatus = ChannelStatus.CLOSED;
+    }
   }
 }

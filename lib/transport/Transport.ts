@@ -23,9 +23,11 @@ export default class Transport implements ITransport {
     this.options = options || {};
 
     const scheme = `ws${options.useTLS ? 's' : ''}`;
-    const host = options.useTLS ? (`${options.host}:${options.portTLS}`) : (`${options.host}:${options.port}`);
+    const host = `${options.host}:${options.port}`;
+    // eslint-disable-next-line max-len
+    const paramStr = options.queryParams ? Object.entries(options.queryParams).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&') : null;
 
-    const url = `${scheme}://${host}/${options.path}`;
+    const url = `${scheme}://${host}/${options.path}${paramStr ? (`?${paramStr}`) : ''}`;
 
     this.hooks = {
       url,
@@ -68,7 +70,7 @@ export default class Transport implements ITransport {
       callback(null, result);
     };
 
-    const onError = (error: any) => { // TODO
+    const onError = (error: any) => {
       unbindListeners();
       callback(error);
     };

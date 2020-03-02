@@ -18,6 +18,5 @@ export interface SFEventMap {
     [NamesDict.CLOSED]: ISFSocketEvent;
     [NamesDict.INITIALIZED]: undefined;
 }
-export declare type EventCallback<K extends keyof SFEventMap> = (data: SFEventMap[K]) => any;
 export declare type UEventCallback<EventMap, K extends keyof EventMap> = (data: EventMap[K]) => any;
 //# sourceMappingURL=types.d.ts.map

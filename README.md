@@ -65,21 +65,93 @@ ws.disconnect()
 ```
 
 
-
 ### Constructor options
 
-SFSocket supports standard (ws) and secure (wss) protocols
+SFSocket supports standard (ws) and secure (wss) protocols.
+
+SFSocket constructor `new SFSocket(options: ISFSocketConfig)` is expecting options of type `ISFSocketConfig`
+
+<table class="responsive">
+  <tbody>
+    <tr>
+      <th colspan=2>ISFSocketConfig</th>
+    </tr>
+    <tr>
+      <td>
+        <code>host</code>
+      </td>
+      <td>
+        <code>string</code><br>
+        Host websocket should connect to
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>port</code>
+      </td>
+      <td>
+        <code>string</code> or <code>number</code><br>
+        (optional) Port websocket should connect to<br>
+        <b>Default</b>: 80 or 443 if useTSL = true
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>useTSL</code>
+      </td>
+      <td>
+        <code>boolean</code><br>
+        (optional) Use TSL `wss` instead of regular `ws` protocol<br>
+        <b>Default</b>: false
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>path</code>
+      </td>
+      <td>
+        <code>string</code><br>
+        (optional) Server path part<br>
+        <b>Default</b>: empty
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>queryParams</code>
+      </td>
+      <td>
+        <code>object</code> of <code>{[key: string]: string}</code> type<br>
+        (optional) Query params map to append to path<br>
+        <b>Default</b>: empty
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>unavailableTimeout</code>
+      </td>
+      <td>
+        <code>number</code><br>
+        (optional) A timeout which is considered to be large enough to stop retrying reconnects if server response takes longer<br>
+        <b>Default</b>: 10000
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+For example to establish connection to `ws://some.domain.com/foo?bar=1` use following code 
 
 ```js
+import { SFSocket } from '@sf/webcokets';
+
 const socketOptions = {
-  host, // string, required
-  port, // string | number, default: 80
-  portTLS, // string | number, optional, default: 443
-  path, // string, required, default: ''
-  unavailableTimeout, // number, optional, default: 10000
-  useTLS, // boolean, optional, default: false
-  useStorage, // boolean, optional, default: false
+  host: 'some.domain.com',
+  port: '80',
+  path: 'foo',
+  queryParams: { bar: '1' }
 }
+
+const ws = new SFSocket(socketOptions);
 
 ```
 
@@ -102,7 +174,7 @@ SFSocket works in a particular format:
 // Send join or leave command manually
 const cmd = 'join'; // 'join' or 'leave'
 const data = ['command arguments']; // List of channels
-ws.sendEvent(cmd, data);
+ws.sendCommand(cmd, data);
 ````
 
 ````js
@@ -110,7 +182,7 @@ ws.sendEvent(cmd, data);
 const cmd = 'custom';
 const data = ['command arguments']; // any data
 const channel = 'channel_1'; // Optional param to select channel to send
-ws.sendEvent(cmd, data, channel);
+ws.sendCommand(cmd, data, channel);
 ````
 
 ### Events
@@ -161,7 +233,7 @@ On windows execute `git config core.autocrlf false` to disable automatic line en
 
 ##### TODO
 
-* What kind of commands we are expected to send on server. Currently only 'join' and 'leave' are sending something legit. Channel name in 'sendEvent' is completely ignored.
+* What kind of commands we are expected to send on server. Currently only 'join' and 'leave' are sending something legit. Channel name in 'sendCommand' is completely ignored.
 * We don't need separate 'sfSocket' prefix as all binds are already having a type and we can either omit it or remove completely
 * Connection callback can and should be made into promise. Or why do we might need flow of error events? Needs research.
 * Needs documenting that channel names should not have '@' symbol and why

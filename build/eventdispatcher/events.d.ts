@@ -7,6 +7,9 @@ export declare enum NamesDict {
     OPEN = "open",
     INITIALIZED = "initialized",
     CLOSED = "closed",
-    UNAVAILABLE = "unavailable"
+    UNAVAILABLE = "unavailable",
+    CHANNEL_JOINED = "channel_joined",
+    CHANNEL_JOIN_FAILED = "channel_join_failed",
+    CHANNEL_LEFT = "channel_left"
 }
 //# sourceMappingURL=events.d.ts.map

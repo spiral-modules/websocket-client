@@ -1,14 +1,8 @@
 import { UEventCallback } from './types';
 import Channel from './Channel';
 import ConnectionManager, { ConnectionManagerEventMap } from './connection/ConnectionManager';
-import { defaultConfig, STORAGE_KEY } from './constants';
+import { defaultConfig } from './constants';
 import { NamesDict } from './eventdispatcher/events';
-import EventsDispatcher from './eventdispatcher/EventsDispatcher';
-
-const CONNECTION_EVENTS = {
-  JOIN: 'join',
-  LEAVE: 'leave',
-};
 
 export interface IChannels {
   [name: string]: Channel;
@@ -18,6 +12,10 @@ export interface IChannels {
 export enum SFSocketEventType {
   CONNECTING='sfSocket:connecting',
   MESSAGE='sfSocket:message',
+  CHANNEL_JOINED='channel_joined',
+  CHANNEL_JOIN_FAILED='channel_join_failed',
+  CHANNEL_LEFT='channel_left',
+  CHANNEL_LEAVE_FAILED='channel_leave_failed',
   ERROR='sfSocket:error',
   CLOSED='sfSocket:closed',
 }
@@ -26,11 +24,10 @@ export enum SFSocketEventType {
 export interface ISFSocketConfig {
   host: string,
   port: string | number;
-  portTLS?: string | number;
   path: string;
+  queryParams?: {[key: string]: string};
   unavailableTimeout?: number;
   useTLS?: boolean;
-  useStorage?: boolean;
 }
 
 export interface ISFSocketEvent {
@@ -41,10 +38,6 @@ export interface ISFSocketEvent {
     channel?: string,
     code?: string | number,
   } | null
-}
-
-export interface SFSocketEventMap {
-  [NamesDict.MESSAGE]: ISFSocketEvent
 }
 
 export class SFSocket {
@@ -60,15 +53,11 @@ export class SFSocket {
     });
   }
 
-  config: ISFSocketConfig;
+  private config: ISFSocketConfig;
 
-  channels: IChannels;
+  channels: IChannels = {};
 
-  eventsDispatcher: EventsDispatcher<SFSocketEventMap>;
-
-  connection: ConnectionManager;
-
-  hasStorage: boolean;
+  cMgr: ConnectionManager;
 
   constructor(options?: ISFSocketConfig) {
     if (!options || typeof options !== 'object') {
@@ -79,35 +68,19 @@ export class SFSocket {
 
     this.config = {
       ...defaultConfig,
+      port: constructorOptions.useTLS ? 443 : 80,
       ...constructorOptions,
     };
 
-    this.channels = {};
-    this.eventsDispatcher = new EventsDispatcher();
+    this.cMgr = new ConnectionManager(this.config);
 
-    this.hasStorage = Boolean(this.config.useStorage && window && window.localStorage);
-
-    this.connection = new ConnectionManager(this.config);
-
-    this.connection.bind(NamesDict.CONNECTED, () => {
-      Object.keys(this.channels).forEach((channelName) => {
-        this.subscribeChannel(channelName);
+    this.cMgr.bind(NamesDict.CONNECTED, () => {
+      Object.values(this.channels).forEach((channel) => {
+        channel.join(); // Send join command again on connect
       });
     });
 
-    this.connection.bind(NamesDict.MESSAGE, (event: any) => {
-      this.eventsDispatcher.emit(NamesDict.MESSAGE, event); // TODO: Why do we need eventDispatcher if it only consumes message event
-    });
-
-    this.connection.bind(NamesDict.CONNECTING, () => {
-      this.channelsDisconnect();
-    });
-
-    this.connection.bind(NamesDict.DISCONNECTED, () => {
-      this.channelsDisconnect();
-    });
-
-    this.connection.bind(NamesDict.ERROR, (err: ISFSocketEvent) => {
+    this.cMgr.bind(NamesDict.ERROR, (err: ISFSocketEvent) => {
       console.error(err); // eslint-disable-line no-console
     });
 
@@ -116,171 +89,78 @@ export class SFSocket {
     if (SFSocket.isReady) {
       this.connect();
     }
-
-    if (this.hasStorage) {
-      const activeChannels: string[] = this.getStorage();
-
-      if (activeChannels) {
-        activeChannels.forEach((channelName) => {
-          this.subscribeChannel(channelName);
-        });
-      }
-    }
   }
 
   connect() {
-    this.connection.connect();
+    this.cMgr.connect();
   }
 
   disconnect() {
-    this.connection.disconnect();
+    this.cMgr.disconnect();
   }
 
-  // connections
-  sendEvent(eventName: string, data: string[], channel?: string) {
-    return this.connection.sendEvent(eventName, data, channel);
+  /**
+   * Send custom command to server
+   * @param cmdName - string name of command
+   * @param data - serializable payload for data
+   */
+  sendCommand(cmdName: string, data: any) {
+    return this.cMgr.sendCommand(cmdName, data);
   }
 
-  join(data: string[]) {
-    return this.sendEvent(CONNECTION_EVENTS.JOIN, data);
-  }
-
-  leave(data: string[]) {
-    return this.sendEvent(CONNECTION_EVENTS.LEAVE, data);
-  }
-
-  listen(channelsNames: string[]) {
+  joinChannelList(channelsNames: string[]) {
     channelsNames.forEach((channelsName) => {
-      if (this.connection.isConnected()) {
-        this.joinChannel(channelsName);
-      } else {
-        this.subscribeChannel(channelsName);
-      }
+      this.joinChannel(channelsName);
     });
   }
 
-  stopListen(channelNames: string[]) {
+  leaveChannelList(channelNames: string[]) {
     channelNames.forEach((channelName) => {
-      const removedChannel = this.removeChannel(channelName);
-      if (removedChannel && this.connection.isConnected()) {
-        removedChannel.leaveChannel();
-      }
+      this.leaveChannel(channelName);
     });
   }
 
-  // TODO: what was that TODO about? Test if works and remove
+  /**
+   * Subscribe to event globally
+   * @param eventName
+   * @param callback
+   * @param channel - optional channel to monitor. Note subscribing to channel here is not creating auto-rejoinable channel.
+   * Join channel explicitly to make it auto-rejoinable
+   */
   subscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>, channel?: string) {
-    return this.connection.bind(eventName, callback, channel);
+    return this.cMgr.bind(eventName, callback, channel);
   }
 
-  // TODO: what was that TODO about? Test if works and remove
+  /**
+   * Unsubscribe from event globally
+   * @param eventName
+   * @param callback
+   * @param channel - optional channel to monitor. Note subscribing to channel here is not creating auto-rejoinable channel.
+   * Join channel explicitly to make it auto-rejoinable
+   */
   unsubscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>, channel?: string) {
-    return this.connection.unbind(eventName, callback, channel);
-  }
-
-  // channels
-  channel(channelName: string): Channel {
-    return this.subscribeChannel(channelName);
-  }
-
-  addChannel(name : string, socket : SFSocket) {
-    if (!this.channels[name]) {
-      this.channels[name] = new Channel(name, socket);
-    }
-    return this.channels[name];
+    return this.cMgr.unbind(eventName, callback, channel);
   }
 
   joinChannel(chanelName: string) {
-    this.addStorageChannel(chanelName);
-    return this.sendEvent(CONNECTION_EVENTS.JOIN, [chanelName]);
+    if (this.channels[chanelName]) {
+      throw new Error(`Channel ${chanelName} already exists`);
+    }
+    this.channels[chanelName] = new Channel(chanelName, this);
+    return this.channels[chanelName];
   }
 
   leaveChannel(chanelName: string) {
-    this.removeStorageChannel(chanelName);
-    return this.sendEvent(CONNECTION_EVENTS.LEAVE, [chanelName]);
+    if (!this.channels[chanelName]) {
+      throw new Error(`Channel ${chanelName} does not exist`);
+    }
+    const channel = this.channels[chanelName];
+    channel.leave();
+    delete this.channels[chanelName];
+    return channel;
   }
 
-  findChannel(name: string): Channel {
+  getChannel(name: string): Channel {
     return this.channels[name];
-  }
-
-  private removeChannel(name : string) {
-    const channel = this.channels[name];
-    delete this.channels[name];
-    return channel;
-  }
-
-  private channelsDisconnect() {
-    Object.values(this.channels).forEach((channel: Channel) => channel.disconnect());
-  }
-
-  private subscribeChannel(channelName: string) {
-    const channel = this.addChannel(channelName, this);
-
-    if (channel.subscriptionCancelled) {
-      channel.reinstateSubscription();
-    } else if (this.connection.isConnected()) {
-      channel.join();
-    }
-    return channel;
-  }
-
-  // storage
-  getStorage() {
-    if (this.hasStorage) {
-      const storageData = window.localStorage.getItem(STORAGE_KEY);
-
-      return storageData ? JSON.parse(storageData) : null;
-    }
-
-    return null;
-  }
-
-  addStorageChannel(channelName: string) {
-    if (this.hasStorage) {
-      const activeStorageChannels = this.getStorage();
-
-      if (activeStorageChannels) { // remove older records
-        const activeChannels = activeStorageChannels.filter((channel: string) => channel !== channelName); // eslint-disable-line max-len
-
-        activeChannels.push(channelName);
-
-        this.setStorage(activeChannels);
-      } else {
-        this.setStorage([channelName]);
-      }
-    }
-  }
-
-  removeStorageChannel(channelName: string) {
-    if (this.hasStorage) {
-      const activeStorage = this.getStorage();
-
-      if (activeStorage) {
-        const currentData = activeStorage.filter((channel: string) => channel !== channelName);
-
-        if (currentData.length) {
-          this.setStorage(currentData);
-        } else {
-          this.clearStorage();
-        }
-      }
-    }
-  }
-
-  setStorage(args: string[]) {
-    if (this.hasStorage) {
-      return window.localStorage.setItem(STORAGE_KEY, JSON.stringify(args));
-    }
-
-    return null;
-  }
-
-  clearStorage() {
-    if (this.hasStorage) {
-      return window.localStorage.removeItem(STORAGE_KEY);
-    }
-
-    return null;
   }
 }

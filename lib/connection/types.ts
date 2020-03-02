@@ -1,3 +1,5 @@
+import { ISFSocketEvent } from '../SFSocket';
+
 export interface IAction {
     action: string;
     id?: string;
@@ -10,7 +12,10 @@ export interface IErrorCallbacks {
 }
 
 export interface IConnectionCallbacks {
-    message: (message: any) => void; // TODO
-    error: (error: any) => void; // TODO
+    channelJoined: (channels: string[]) => void;
+    channelJoinFailed: (channels: string[]) => void;
+    channelLeft: (channels: string[]) => void;
+    message: (message: ISFSocketEvent) => void; // TODO
+    error: (error: ISFSocketEvent) => void; // TODO
     closed: (reason: any) => void; // TODO
 }

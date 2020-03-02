@@ -1,31 +1,66 @@
 import { ISFSocketEvent, SFSocketEventType } from './SFSocket';
 
-const systemSymbols = ['@'];
+export enum SystemEvents {
+    CHANNEL_JOINED = '@join', // server payload is string[] = channel list that were successfully joined
+    CHANNEL_JOIN_FAILED = '#join', // server payload is string[] = channel list that failed to join
+    CHANNEL_LEFT = '@leave', // server payload is string[] = channel list that were successfully left
+    CHANNEL_LEAVE_FAILED = '#leave', // server payload is string[] = channel list that failed to leave
+}
+
+export const SystemTopics = new Set<string>([
+  SystemEvents.CHANNEL_JOINED,
+  SystemEvents.CHANNEL_JOIN_FAILED,
+  SystemEvents.CHANNEL_LEFT,
+  SystemEvents.CHANNEL_LEAVE_FAILED,
+]);
 
 export const decodeMessage = (messageEvent: string | null): ISFSocketEvent => {
   if (messageEvent) {
     const messageData = JSON.parse(messageEvent);
-
-    const calcChannelName = (topic: string) => {
-      let resultTopic = topic;
-
-      systemSymbols.forEach((symbol) => {
-        if (topic && topic[0] === symbol) {
-          resultTopic = '';
-        }
-      });
-
-      return String(resultTopic);
-    };
-
-    return {
-      type: SFSocketEventType.MESSAGE,
-      error: null,
-      data: messageData.payload || null,
-      context: {
-        ...(messageData.topic ? { channel: calcChannelName(messageData.topic) } : {}),
-      },
-    };
+    if (SystemTopics.has(messageData.topic)) {
+      if (!messageData.payload && Array.isArray(messageData.payload)) {
+        return {
+          type: SFSocketEventType.ERROR,
+          error: 'WS event system event payload is invalid. Should be a string array',
+          data: 'MessageParseError',
+        };
+      }
+    }
+    switch (messageData.topic) {
+      case SystemEvents.CHANNEL_JOINED:
+        return {
+          type: SFSocketEventType.CHANNEL_JOINED,
+          error: null,
+          data: messageData.payload,
+        };
+      case SystemEvents.CHANNEL_JOIN_FAILED:
+        return {
+          type: SFSocketEventType.CHANNEL_JOIN_FAILED,
+          error: null,
+          data: messageData.payload,
+        };
+      case SystemEvents.CHANNEL_LEFT:
+        return {
+          type: SFSocketEventType.CHANNEL_LEFT,
+          error: null,
+          data: messageData.payload,
+        };
+      case SystemEvents.CHANNEL_LEAVE_FAILED:
+        return {
+          type: SFSocketEventType.CHANNEL_LEAVE_FAILED,
+          error: null,
+          data: messageData.payload,
+        };
+      default:
+        return {
+          type: SFSocketEventType.MESSAGE,
+          error: null,
+          data: messageData.payload || null,
+          context: {
+            ...(messageData.topic ? { channel: messageData.topic } : {}),
+          },
+        };
+    }
   }
 
   return {
@@ -35,10 +70,10 @@ export const decodeMessage = (messageEvent: string | null): ISFSocketEvent => {
   };
 };
 
-export const encodeMessage = (event: ISFSocketEvent): string => {
+export const encodeMessage = (event: { type: string, payload: any }): string => {
   const sfEvent = {
-    cmd: event.type,
-    args: event.data,
+    topic: event.type,
+    payload: event.payload,
   };
 
   return JSON.stringify(sfEvent);

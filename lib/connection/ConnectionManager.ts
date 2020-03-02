@@ -21,6 +21,9 @@ export interface ConnectionManagerEventMap {
     [NamesDict.CONNECTING]: ISFSocketEvent,
     [NamesDict.DISCONNECTED]: undefined,
     [NamesDict.CONNECTED]: undefined,
+    [NamesDict.CHANNEL_JOINED]: string[],
+    [NamesDict.CHANNEL_JOIN_FAILED]: string[],
+    [NamesDict.CHANNEL_LEFT]: string[],
     [NamesDict.ERROR]: ISFSocketEvent,
     [NamesDict.MESSAGE]: ISFSocketEvent,
     [NamesDict.CLOSED]: ISFSocketEvent,
@@ -28,32 +31,29 @@ export interface ConnectionManagerEventMap {
 }
 
 export default class ConnectionManager extends EventsDispatcher<ConnectionManagerEventMap> {
-    options: ISFSocketConfig;
+    private options: ISFSocketConfig;
 
     state: ConnectionState;
 
-    connection: Connection | null;
+    private connection: Connection | null;
 
-    usingTLS: boolean;
+    private unavailableTimer: number;
 
-    unavailableTimer: number;
+    private retryTimer: number;
 
-    retryTimer: number;
+    private transport: ITransport;
 
-    transport: ITransport;
+    private runner: IRunner | null;
 
-    runner: IRunner | null;
+    private errorCallbacks: IErrorCallbacks;
 
-    errorCallbacks: IErrorCallbacks;
-
-    connectionCallbacks: IConnectionCallbacks;
+    private connectionCallbacks: IConnectionCallbacks;
 
     constructor(options: ISFSocketConfig) {
       super();
       this.options = options || {};
       this.state = 'initialized';
       this.connection = null;
-      this.usingTLS = Boolean(options.useTLS);
 
       this.errorCallbacks = this.buildErrorCallbacks();
       this.connectionCallbacks = this.buildConnectionCallbacks(this.errorCallbacks);
@@ -84,9 +84,23 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
       return false;
     }
 
-    sendEvent(name: string, data: string[], channel?: string) {
+    sendCommand(name: string, data: any) {
       if (this.connection) {
-        return this.connection.sendEvent(name, data, channel);
+        return this.connection.sendCommand(name, data);
+      }
+      return false;
+    }
+
+    sendJoin(channels: string[]) {
+      if (this.connection) {
+        this.connection.sendJoin(channels);
+      }
+      return false;
+    }
+
+    sendLeave(channels: string[]) {
+      if (this.connection) {
+        this.connection.sendLeave(channels);
       }
       return false;
     }
@@ -189,6 +203,9 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
           }
           this.emit(NamesDict.CLOSED, closeEvent);
         },
+        channelJoined: ((channels) => this.emit(NamesDict.CHANNEL_JOINED, channels)),
+        channelJoinFailed: ((channels) => this.emit(NamesDict.CHANNEL_JOIN_FAILED, channels)),
+        channelLeft: ((channels) => this.emit(NamesDict.CHANNEL_LEFT, channels)),
       };
     }
 
@@ -220,6 +237,9 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
         return;
       }
       this.connection.bind(NamesDict.MESSAGE, this.connectionCallbacks.message);
+      this.connection.bind(NamesDict.CHANNEL_LEFT, this.connectionCallbacks.channelLeft);
+      this.connection.bind(NamesDict.CHANNEL_JOIN_FAILED, this.connectionCallbacks.channelJoinFailed);
+      this.connection.bind(NamesDict.CHANNEL_JOINED, this.connectionCallbacks.channelJoined);
       this.connection.bind(NamesDict.ERROR, this.connectionCallbacks.error);
       this.connection.bind(NamesDict.CLOSED, this.connectionCallbacks.closed);
     }
@@ -229,6 +249,9 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
         return null;
       }
       this.connection.unbind(NamesDict.MESSAGE, this.connectionCallbacks.message);
+      this.connection.unbind(NamesDict.CHANNEL_LEFT, this.connectionCallbacks.channelLeft);
+      this.connection.unbind(NamesDict.CHANNEL_JOIN_FAILED, this.connectionCallbacks.channelJoinFailed);
+      this.connection.unbind(NamesDict.CHANNEL_JOINED, this.connectionCallbacks.channelJoined);
       this.connection.unbind(NamesDict.ERROR, this.connectionCallbacks.error);
       this.connection.unbind(NamesDict.CLOSED, this.connectionCallbacks.closed);
 
