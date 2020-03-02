@@ -10,14 +10,14 @@ export interface IChannels {
 
 // TODO: why do we even need 'sfSocket' prefix and not just reuse type
 export enum SFSocketEventType {
-  CONNECTING='sfSocket:connecting',
-  MESSAGE='sfSocket:message',
-  CHANNEL_JOINED='channel_joined',
-  CHANNEL_JOIN_FAILED='channel_join_failed',
-  CHANNEL_LEFT='channel_left',
-  CHANNEL_LEAVE_FAILED='channel_leave_failed',
-  ERROR='sfSocket:error',
-  CLOSED='sfSocket:closed',
+  CONNECTING = 'sfSocket:connecting',
+  MESSAGE = 'sfSocket:message',
+  CHANNEL_JOINED = 'channel_joined',
+  CHANNEL_JOIN_FAILED = 'channel_join_failed',
+  CHANNEL_LEFT = 'channel_left',
+  CHANNEL_LEAVE_FAILED = 'channel_leave_failed',
+  ERROR = 'sfSocket:error',
+  CLOSED = 'sfSocket:closed',
 }
 
 
@@ -25,7 +25,7 @@ export interface ISFSocketConfig {
   host: string,
   port: string | number;
   path: string;
-  queryParams?: {[key: string]: string};
+  queryParams?: { [key: string]: string };
   unavailableTimeout?: number;
   useTLS?: boolean;
 }
@@ -147,6 +147,9 @@ export class SFSocket {
       throw new Error(`Channel ${chanelName} already exists`);
     }
     this.channels[chanelName] = new Channel(chanelName, this);
+    if (this.cMgr.isConnected()) { // Else it will auto-happen on CONNECTED
+      this.channels[chanelName].join();
+    }
     return this.channels[chanelName];
   }
 

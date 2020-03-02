@@ -66,13 +66,13 @@ describe('sfSocket events', () => {
   test('sfSocket should successfully send event', async () => {
     const ClientSocket = new SFSocket(socketOptions);
     const Server = new WS(fakeUrl);
-    const clientMessage = JSON.stringify({ cmd: 'test', args: ['data'] });
+    const clientMessage = JSON.stringify({ topic: 'test', payload: ['data'] });
 
     SFSocket.ready();
 
     await Server.connected;
 
-    ClientSocket.sendEvent('test', ['data']);
+    ClientSocket.sendCommand('test', ['data']);
 
     expect(Server).toReceiveMessage(clientMessage);
 
@@ -83,13 +83,13 @@ describe('sfSocket events', () => {
     const Server = new WS(fakeUrl);
     const ClientSocket = new SFSocket(socketOptions);
     const joinData = ['joinData'];
-    const clientMessage = JSON.stringify({ cmd: 'join', args: joinData });
+    const clientMessage = JSON.stringify({ topic: 'join', payload: joinData });
 
     SFSocket.ready();
 
     await Server.connected;
 
-    ClientSocket.join(joinData);
+    ClientSocket.joinChannel('joinData');
 
     await expect(Server).toReceiveMessage(clientMessage);
 
@@ -100,15 +100,18 @@ describe('sfSocket events', () => {
     const Server = new WS(fakeUrl);
     const ClientSocket = new SFSocket(socketOptions);
     const joinData = ['joinData'];
-    const clientMessage = JSON.stringify({ cmd: 'leave', args: joinData });
+    const clientMessage1 = JSON.stringify({ topic: 'join', payload: joinData });
+    const clientMessage2 = JSON.stringify({ topic: 'leave', payload: joinData });
 
     SFSocket.ready();
 
     await Server.connected;
 
-    ClientSocket.leave(joinData);
+    ClientSocket.joinChannel('joinData');
+    ClientSocket.leaveChannel('joinData');
 
-    await expect(Server).toReceiveMessage(clientMessage);
+    await expect(Server).toReceiveMessage(clientMessage1);
+    await expect(Server).toReceiveMessage(clientMessage2);
 
     Server.close();
   });

@@ -67,12 +67,11 @@ describe('sfSocket connections', () => {
 
     const connectionCallbacksKeys: Array<keyof ConnectionManagerEventMap> = [
       NamesDict.CONNECTED,
-      NamesDict.MESSAGE,
-      NamesDict.CONNECTING,
-      NamesDict.DISCONNECTED,
+      // NamesDict.MESSAGE,
+      // NamesDict.CONNECTING,
+      // NamesDict.DISCONNECTED,
       NamesDict.ERROR,
     ];
-
     const wsConnectionCallbacks = ws.cMgr.callbacks.callbacks;
 
     expect(wsConnectionCallbacks).not.toBeUndefined();

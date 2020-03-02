@@ -171,7 +171,6 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
   }
 
   private changeState(state: NamesDict.OPEN | NamesDict.CONNECTING | NamesDict.INITIALIZED) {
-    console.log('Change state', state);
     this.state = state;
     this.emit(state, undefined);
   }
