@@ -25,7 +25,7 @@ export default class Transport implements ITransport {
     const scheme = `ws${options.useTLS ? 's' : ''}`;
     const host = `${options.host}:${options.port}`;
     // eslint-disable-next-line max-len
-    const paramStr = options.queryParams ? Object.entries(options.queryParams).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(key)}`).join('&') : null;
+    const paramStr = options.queryParams ? Object.entries(options.queryParams).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&') : null;
 
     const url = `${scheme}://${host}/${options.path}${paramStr ? (`?${paramStr}`) : ''}`;
 
