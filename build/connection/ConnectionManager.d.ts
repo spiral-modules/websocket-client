@@ -1,7 +1,4 @@
-import { IConnectionCallbacks, IErrorCallbacks } from './types';
 import EventsDispatcher from '../eventdispatcher/EventsDispatcher';
-import { IRunner, ITransport } from '../transport/Transport';
-import Connection from './Connection';
 import { ISFSocketConfig, ISFSocketEvent } from '../SFSocket';
 import { NamesDict } from '../eventdispatcher/events';
 export declare type ConnectionState = 'initialized' | NamesDict.UNAVAILABLE | NamesDict.CONNECTING | NamesDict.CONNECTED | NamesDict.DISCONNECTED;
@@ -18,16 +15,15 @@ export interface ConnectionManagerEventMap {
     [NamesDict.UNAVAILABLE]: undefined;
 }
 export default class ConnectionManager extends EventsDispatcher<ConnectionManagerEventMap> {
-    options: ISFSocketConfig;
+    private options;
     state: ConnectionState;
-    connection: Connection | null;
-    usingTLS: boolean;
-    unavailableTimer: number;
-    retryTimer: number;
-    transport: ITransport;
-    runner: IRunner | null;
-    errorCallbacks: IErrorCallbacks;
-    connectionCallbacks: IConnectionCallbacks;
+    private connection;
+    private unavailableTimer;
+    private retryTimer;
+    private transport;
+    private runner;
+    private errorCallbacks;
+    private connectionCallbacks;
     constructor(options: ISFSocketConfig);
     connect(): void;
     send(data: string): boolean;

@@ -24,8 +24,8 @@ export enum SFSocketEventType {
 export interface ISFSocketConfig {
   host: string,
   port: string | number;
-  portTLS?: string | number;
   path: string;
+  queryParams?: {[key: string]: string};
   unavailableTimeout?: number;
   useTLS?: boolean;
 }
@@ -53,7 +53,7 @@ export class SFSocket {
     });
   }
 
-  config: ISFSocketConfig;
+  private config: ISFSocketConfig;
 
   channels: IChannels = {};
 
@@ -68,6 +68,7 @@ export class SFSocket {
 
     this.config = {
       ...defaultConfig,
+      port: constructorOptions.useTLS ? 443 : 80,
       ...constructorOptions,
     };
 

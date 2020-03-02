@@ -31,32 +31,29 @@ export interface ConnectionManagerEventMap {
 }
 
 export default class ConnectionManager extends EventsDispatcher<ConnectionManagerEventMap> {
-    options: ISFSocketConfig;
+    private options: ISFSocketConfig;
 
     state: ConnectionState;
 
-    connection: Connection | null;
+    private connection: Connection | null;
 
-    usingTLS: boolean;
+    private unavailableTimer: number;
 
-    unavailableTimer: number;
+    private retryTimer: number;
 
-    retryTimer: number;
+    private transport: ITransport;
 
-    transport: ITransport;
+    private runner: IRunner | null;
 
-    runner: IRunner | null;
+    private errorCallbacks: IErrorCallbacks;
 
-    errorCallbacks: IErrorCallbacks;
-
-    connectionCallbacks: IConnectionCallbacks;
+    private connectionCallbacks: IConnectionCallbacks;
 
     constructor(options: ISFSocketConfig) {
       super();
       this.options = options || {};
       this.state = 'initialized';
       this.connection = null;
-      this.usingTLS = Boolean(options.useTLS);
 
       this.errorCallbacks = this.buildErrorCallbacks();
       this.connectionCallbacks = this.buildConnectionCallbacks(this.errorCallbacks);

@@ -17,8 +17,10 @@ export declare enum SFSocketEventType {
 export interface ISFSocketConfig {
     host: string;
     port: string | number;
-    portTLS?: string | number;
     path: string;
+    queryParams?: {
+        [key: string]: string;
+    };
     unavailableTimeout?: number;
     useTLS?: boolean;
 }
@@ -35,7 +37,7 @@ export declare class SFSocket {
     static instances: SFSocket[];
     static isReady: boolean;
     static ready(): void;
-    config: ISFSocketConfig;
+    private config;
     channels: IChannels;
     cMgr: ConnectionManager;
     constructor(options?: ISFSocketConfig);
