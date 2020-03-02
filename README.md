@@ -39,6 +39,87 @@ ws.unsubscribe('message', prepareEvent);
 ws.disconnect();
 ```
 
+<table class="responsive">
+  <tbody>
+    <tr>
+      <th colspan=2>SFSocket</th>
+    </tr>
+    <tr>
+      <td colspan=2>
+        <b>Methods</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>static ready()</code>
+      </td>
+      <td>
+        Marks sockets as ready and launches all connections.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>constructor(options: ISFSocketConfig)</code>
+      </td>
+      <td>
+        Create websocket connection<br>
+        <code>options: ISFSocketConfig</code> - connection options
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>joinChannel(channel)</code>
+      </td>
+      <td>
+        Creates a named channel and joins it<br>
+        <code>channel: string</code> name of channel to join. Should not be one of system ones `@join` `#join` `@leave` and `#leave`<br>
+        <code>return value: Channel</code> returns channel object
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>getChannel(channel)</code>
+      </td>
+      <td>
+        Gets a previosly created named channel<br>
+        <code>return value: Channel</code> returns channel object
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>leaveChannel(channel)</code>
+      </td>
+      <td>
+        Removes a named channel and leaves it<br>
+        <code>channel: string</code> name of channel to join. Should not be one of system ones `@join` `#join` `@leave` and `#leave`<br>
+        <code>return value: Channel</code> returns channel object
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>subscibe(event, callback, channel)</code>
+      </td>
+      <td>
+        Subscribes to specific event<br>
+        <code>event: string</code> one of valid event codes. See table below for possible events and their payload<br>
+        <code>callback: (payload) => void</code> callback to call. Type of payload depends on event type<br>
+        <code>channel: string</code> (optional) Channel name to follow. If none, subscribes for all. Note that doesn't automatically join channel, just adds listener to existing one.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>unsubscibe(event, callback, channel)</code>
+      </td>
+      <td>
+        Unsubscribes from specific event<br>
+        <code>event: string</code> one of valid event codes. See table below for possible events and their payload<br>
+        <code>callback: (payload) => void</code> callback to call. Type of payload depends on event type<br>
+        <code>channel: string</code> (optional) Channel name to unfollow. If none, unsubscribes from all channels.. Note that doesn't automatically remove channel, just removes listener from existing one.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 
 ### Channels
 
