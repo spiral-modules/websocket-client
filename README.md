@@ -30,7 +30,7 @@ Or via bundle file
     </script>
 ```
 
-## WebSocket
+## API
 
 SFSocket proposes easy way to use WebSockets:
 
@@ -57,10 +57,35 @@ ws.unsubscribe('message', prepareEvent);
 ws.disconnect();
 ```
 
+### SFSocket
+
 <table class="responsive">
   <tbody>
     <tr>
       <th colspan=2>SFSocket</th>
+    </tr>        
+    <tr>
+      <td colspan=2>
+        <b>Properties</b>
+      </td>
+    </tr>    
+    <tr>
+      <td>
+        <code>static instances</code>
+      </td>
+      <td>
+      <code>SFSocket[]</code><br>
+       Array of all existing sockets
+      </td>
+    </tr>   
+    <tr>
+      <td>
+        <code>static isReady</code>
+      </td>
+      <td>
+      <code>boolean</code><br>
+      false before `ready()` is called. If is true any new SFSocket will connect upon creation.
+      </td>
     </tr>
     <tr>
       <td colspan=2>
@@ -72,7 +97,8 @@ ws.disconnect();
         <code>static ready()</code>
       </td>
       <td>
-        Marks sockets as ready and launches all connections.
+        Marks sockets as ready and launches all connections.<br>
+        Use if you need to make all sockets to connect automatically on creation
       </td>
     </tr>
     <tr>
@@ -135,15 +161,101 @@ ws.disconnect();
         <code>callback: (payload) => void</code> callback to call. Type of payload depends on event type<br>
         <code>channel: string</code> (optional) Channel name to unfollow. If none, unsubscribes from all channels.. Note that doesn't automatically remove channel, just removes listener from existing one.
       </td>
-    </tr>    
+    </tr>
+  </tbody>
+</table>
+
+### SFSocket constructor options
+
+SFSocket supports standard (ws) and secure (wss) protocols.
+
+SFSocket constructor `new SFSocket(options: ISFSocketConfig)` is expecting options of type `ISFSocketConfig`
+
+<table class="responsive">
+  <tbody>
     <tr>
-      <td colspan=2>
-        <b>Properties</b>
+      <th colspan=2>ISFSocketConfig</th>
+    </tr>
+    <tr>
+      <td>
+        <code>host</code>
+      </td>
+      <td>
+        <code>string</code><br>
+        Host websocket should connect to
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>port</code>
+      </td>
+      <td>
+        <code>string</code> or <code>number</code><br>
+        (optional) Port websocket should connect to<br>
+        <b>Default</b>: 80 or 443 if useTSL = true
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>useTSL</code>
+      </td>
+      <td>
+        <code>boolean</code><br>
+        (optional) Use TSL `wss` instead of regular `ws` protocol<br>
+        <b>Default</b>: false
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>path</code>
+      </td>
+      <td>
+        <code>string</code><br>
+        (optional) Server path part<br>
+        <b>Default</b>: empty
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>queryParams</code>
+      </td>
+      <td>
+        <code>object</code> of <code>{[key: string]: string}</code> type<br>
+        (optional) Query params map to append to path<br>
+        <b>Default</b>: empty
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>unavailableTimeout</code>
+      </td>
+      <td>
+        <code>number</code><br>
+        (optional) A timeout which is considered to be large enough to stop retrying reconnects if server response takes longer<br>
+        <b>Default</b>: 10000
       </td>
     </tr>
   </tbody>
 </table>
 
+For example to establish connection to `ws://some.domain.com/foo?bar=1` use following code
+
+```js
+import { SFSocket } from '@sf/websockets';
+
+const socketOptions = {
+  host: 'some.domain.com',
+  port: '80',
+  path: 'foo',
+  queryParams: { bar: '1' }
+}
+
+const ws = new SFSocket(socketOptions);
+
+```
+
+
+### SFSocket channels
 
 <table class="responsive">
   <tbody>
@@ -223,127 +335,24 @@ ws.disconnect();
         <code>callback: (payload) => void</code> callback to call. Type of payload depends on event type<br>
       </td>
     </tr>
-  </tbody>
-</table>
-
-### Channels
-
-Multiple channels available in SFSocket
-
-```js
-import { SFSocket } from '@sf/websockets';
-
-const socketOptions = { host: 'localhost' };
-
-const ws = new SFSocket(socketOptions);
-
-SFSocket.ready()
-
-// create a channel and it is automatically connected to server
-const channel1 = ws.channel('channel_1');
-const channel2 = ws.channel('channel_2');
-
-// subscribe the channel to server 
-channel1.subscribe('message', (event) => doSomething(event));
-channel2.subscribe('message', (event) => doSomething(event));
-
-// disconnect the channel from server 
-channel1.disconnect()
-channel2.disconnect()
-//or
-ws.disconnect()
-```
-
-
-### Constructor options
-
-SFSocket supports standard (ws) and secure (wss) protocols.
-
-SFSocket constructor `new SFSocket(options: ISFSocketConfig)` is expecting options of type `ISFSocketConfig`
-
-<table class="responsive">
-  <tbody>
-    <tr>
-      <th colspan=2>ISFSocketConfig</th>
-    </tr>
     <tr>
       <td>
-        <code>host</code>
+        <code>connect()</code>
       </td>
       <td>
-        <code>string</code><br>
-        Host websocket should connect to
+        Starts connection. This method is automatically called after `SFSocket.ready()` for all existing and new instances
       </td>
     </tr>
     <tr>
       <td>
-        <code>port</code>
+        <code>disconnect()</code>
       </td>
       <td>
-        <code>string</code> or <code>number</code><br>
-        (optional) Port websocket should connect to<br>
-        <b>Default</b>: 80 or 443 if useTSL = true
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>useTSL</code>
-      </td>
-      <td>
-        <code>boolean</code><br>
-        (optional) Use TSL `wss` instead of regular `ws` protocol<br>
-        <b>Default</b>: false
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>path</code>
-      </td>
-      <td>
-        <code>string</code><br>
-        (optional) Server path part<br>
-        <b>Default</b>: empty
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>queryParams</code>
-      </td>
-      <td>
-        <code>object</code> of <code>{[key: string]: string}</code> type<br>
-        (optional) Query params map to append to path<br>
-        <b>Default</b>: empty
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>unavailableTimeout</code>
-      </td>
-      <td>
-        <code>number</code><br>
-        (optional) A timeout which is considered to be large enough to stop retrying reconnects if server response takes longer<br>
-        <b>Default</b>: 10000
+        Drops connection
       </td>
     </tr>
   </tbody>
 </table>
-
-
-For example to establish connection to `ws://some.domain.com/foo?bar=1` use following code 
-
-```js
-import { SFSocket } from '@sf/websockets';
-
-const socketOptions = {
-  host: 'some.domain.com',
-  port: '80',
-  path: 'foo',
-  queryParams: { bar: '1' }
-}
-
-const ws = new SFSocket(socketOptions);
-
-```
 
 ### Supported events
 
@@ -415,25 +424,7 @@ const ws = new SFSocket(socketOptions);
   </tbody>
 </table>
 
-```js
-const ws = new SFSocket(socketOptions);
-
-ws.subscribe('connected', () => console.log('connected'));
-ws.subscribe('error', (sfSocketEvent) => doSomething(sfSocketEvent));
-ws.subscribe('message', (sfSocketEvent) => doSomething(sfSocketEvent));
-ws.subscribe('closed', () => console.log('closed'));
-
-const channel = ws.getChannel('topic1');
-
-channel.subscribe('connected', () => console.log('connected'));
-channel.subscribe('error', (sfSocketEvent) => doSomething(sfSocketEvent));
-channel.subscribe('message', (sfSocketEvent) => doSomething(sfSocketEvent));
-channel.subscribe('closed', () => console.log('closed'));
-```
-
-### ISFSocketEvent
-
-SFSocket event format
+### ISFSocketEvent structure
 
 <table class="responsive">
   <tbody>
@@ -526,6 +517,56 @@ const ErrorEvent: ISFSocketEvent = {
 ```
 
 
+
+### Samples
+
+Working with events
+
+```js
+const ws = new SFSocket(socketOptions);
+
+ws.subscribe('connected', () => console.log('connected'));
+ws.subscribe('error', (sfSocketEvent) => doSomething(sfSocketEvent));
+ws.subscribe('message', (sfSocketEvent) => doSomething(sfSocketEvent));
+ws.subscribe('closed', () => console.log('closed'));
+
+const channel = ws.joinChannel('topic1');
+
+channel.subscribe('connected', () => console.log('connected'));
+channel.subscribe('error', (sfSocketEvent) => doSomething(sfSocketEvent));
+channel.subscribe('message', (sfSocketEvent) => doSomething(sfSocketEvent));
+channel.subscribe('closed', () => console.log('closed'));
+```
+
+Multiple channels creation
+
+```js
+import { SFSocket } from '@sf/websockets';
+
+const socketOptions = { host: 'localhost' };
+
+const ws = new SFSocket(socketOptions);
+
+SFSocket.ready();
+
+// create a channel and it is automatically connected to server
+const channel1 = ws.joinChannel('channel_1');
+const channel2 = ws.joinChannel('channel_2', true); // This one wont auto-join now
+
+// subscribe the channel to server 
+channel1.subscribe('message', (event) => doSomething(event));
+channel2.subscribe('message', (event) => doSomething(event));
+
+channel2.join(); // Start receiving messages for channel2 
+
+// disconnect the channel from server 
+channel1.leave();
+channel2.leave();
+
+// disconnect everything
+ws.disconnect()
+```
+
 ### Custom commands
 
 Sending custom commands is supported via `sendCommand` method. `join` and `leave` commands can't be used as command name, payload can be any serializable data.
@@ -536,8 +577,7 @@ const data = ['bar']; // Serializable data
 ws.sendCommand(cmd, data);
 ````
 
-Development
------------
+## Development
 
 ##### Prerequisites
 

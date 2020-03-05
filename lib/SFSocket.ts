@@ -55,7 +55,7 @@ export class SFSocket {
 
   private config: ISFSocketConfig;
 
-  channels: IChannels = {};
+  private channels: IChannels = {};
 
   cMgr: ConnectionManager;
 
