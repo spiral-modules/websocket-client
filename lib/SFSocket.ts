@@ -142,12 +142,12 @@ export class SFSocket {
     return this.cMgr.unbind(eventName, callback, channel);
   }
 
-  joinChannel(chanelName: string) {
+  joinChannel(chanelName: string, dontJoin: boolean = false) {
     if (this.channels[chanelName]) {
       throw new Error(`Channel ${chanelName} already exists`);
     }
     this.channels[chanelName] = new Channel(chanelName, this);
-    if (this.cMgr.isConnected()) { // Else it will auto-happen on CONNECTED
+    if (!dontJoin) {
       this.channels[chanelName].join();
     }
     return this.channels[chanelName];

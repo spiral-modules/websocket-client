@@ -50,7 +50,7 @@ ws.disconnect();
     </tr>
     <tr>
       <td colspan=2>
-        <b>Methods</code>
+        <b>Methods</b>
       </td>
     </tr>
     <tr>
@@ -72,11 +72,12 @@ ws.disconnect();
     </tr>
     <tr>
       <td>
-        <code>joinChannel(channel)</code>
+        <code>joinChannel(channel, dontJoin)</code>
       </td>
       <td>
         Creates a named channel and joins it<br>
         <code>channel: string</code> name of channel to join. Should not be one of system ones `@join` `#join` `@leave` and `#leave`<br>
+        <code>dontJoin: boolean</code> <b>default false</b> if true, channel is created, registered inside instance but not joined automatically. Call `join` method to join later.<br>
         <code>return value: Channel</code> returns channel object
       </td>
     </tr>
@@ -85,7 +86,7 @@ ws.disconnect();
         <code>getChannel(channel)</code>
       </td>
       <td>
-        Gets a previosly created named channel<br>
+        Gets a previously created named channel<br>
         <code>return value: Channel</code> returns channel object
       </td>
     </tr>
@@ -120,10 +121,96 @@ ws.disconnect();
         <code>callback: (payload) => void</code> callback to call. Type of payload depends on event type<br>
         <code>channel: string</code> (optional) Channel name to unfollow. If none, unsubscribes from all channels.. Note that doesn't automatically remove channel, just removes listener from existing one.
       </td>
+    </tr>    
+    <tr>
+      <td colspan=2>
+        <b>Properties</b>
+      </td>
     </tr>
   </tbody>
 </table>
 
+
+<table class="responsive">
+  <tbody>
+    <tr>
+      <th colspan=2>Channel</th>
+    </tr>    
+    <tr>
+      <td colspan=2>
+        <b>Properties</b>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>status</code>
+      </td>
+      <td>
+        <code>string</code>
+        Channel status, can be `closed` `joining` `joined` `leaving` and `error`
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>name</code>
+      </td>
+      <td>
+        <code>string</code>
+        Channel name
+      </td>
+    </tr>
+    <tr>
+      <td colspan=2>
+        <b>Methods</b>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>constructor(name: string, socket: SFSocket)</code>
+      </td>
+      <td>
+        Creates a channel based on specific SFSocket<br>
+        <code>name: string</code> - channel name. Can't be `@join` `#join` or `@leave`
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>join()</code>
+      </td>
+      <td>
+        Enables channel and sends join command once connection is working
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>leave()</code>
+      </td>
+      <td>
+        Disables channel and sends leave command if connection is working
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>subscibe(event, callback)</code>
+      </td>
+      <td>
+        Subscribes to specific event<br>
+        <code>event: string</code> one of valid event codes. See table below for possible events and their payload<br>
+        <code>callback: (payload) => void</code> callback to call. Type of payload depends on event type<br>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>unsubscibe(event, callback)</code>
+      </td>
+      <td>
+        Unsubscribes from specific event<br>
+        <code>event: string</code> one of valid event codes. See table below for possible events and their payload<br>
+        <code>callback: (payload) => void</code> callback to call. Type of payload depends on event type<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ### Channels
 
