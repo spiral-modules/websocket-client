@@ -1,19 +1,33 @@
 # Spiral Framework WebSocket
 
-JavaScript WebSockets client library supports channels.
+JavaScript WebSockets client library with channel support.
 
+## Installation
 
-## Installs
+SFSocket available for installing with npm or yarn
 
-SFSocket available for installing with npm
 ```bash
-    TODO:    
+    npm install @sf/websockets -D  
 ```
 
-or CDN
+```bash
+    yarn add @sf/websockets 
+```
+
+Next use it like so
+```js
+    import { SFSocket } from '@sf/websockets';
+```
+
+
+Or via bundle file
 
 ```html
-    <script src="TODO:"></script>
+    <script src="/build/socket.js"></script>
+    <script type="text/javascript">
+        var Socket = SFSocket.SFSocket;
+        var connection = new Socket({ host: 'localhost'});
+    </script>
 ```
 
 ## WebSocket
@@ -21,7 +35,7 @@ or CDN
 SFSocket proposes easy way to use WebSockets:
 
 ```js
-import { SFSocket } from '@sf/webcokets';
+import { SFSocket } from '@sf/websockets';
 
 const socketOptions = { host: 'localhost' };
 
@@ -217,7 +231,7 @@ ws.disconnect();
 Multiple channels available in SFSocket
 
 ```js
-import { SFSocket } from '@sf/webcokets';
+import { SFSocket } from '@sf/websockets';
 
 const socketOptions = { host: 'localhost' };
 
@@ -318,7 +332,7 @@ SFSocket constructor `new SFSocket(options: ISFSocketConfig)` is expecting optio
 For example to establish connection to `ws://some.domain.com/foo?bar=1` use following code 
 
 ```js
-import { SFSocket } from '@sf/webcokets';
+import { SFSocket } from '@sf/websockets';
 
 const socketOptions = {
   host: 'some.domain.com',
