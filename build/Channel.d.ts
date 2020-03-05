@@ -9,18 +9,26 @@ export declare enum ChannelStatus {
     ERROR = "error"
 }
 export default class Channel {
-    name: string;
+    private readonly selfName;
     private channelStatus;
     private socket;
     private cMgr;
-    enabled: boolean;
+    private enabled;
     constructor(name: string, socket: SFSocket);
     get status(): ChannelStatus;
+    get name(): string;
     get isActive(): boolean;
     join(): void;
-    private sendJoinCommand;
     subscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>): void;
     unsubscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>): void;
     leave(): void;
+    private onConnect;
+    private onDisconnect;
+    private onJoin;
+    private onLeft;
+    private onJoinFailed;
+    private sendJoinCommand;
+    private startListening;
+    private stopListening;
 }
 //# sourceMappingURL=Channel.d.ts.map
