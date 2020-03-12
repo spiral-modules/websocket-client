@@ -1,0 +1,17 @@
+{
+  "name": "spiral/websockets",
+  "type": "library",
+  "description": "Websocket JS Client",
+  "license": "MIT",
+  "authors": [
+  ],
+  "require": {
+  },
+  "autoload": {
+  },
+  "extra": {
+    "publish": {
+      "build/*:@public/scripts/": "replace:readonly"
+    }
+  }
+}

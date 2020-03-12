@@ -1,26 +1,44 @@
 # Spiral Framework WebSocket
 
-JavaScript WebSockets client library supports channels.
+JavaScript WebSockets client library with channel support.
 
+## Installation
 
-## Installs
+SFSocket available for installing with npm or yarn
 
-SFSocket available for installing with npm
 ```bash
-    TODO:    
+    npm install @sf/websockets -D  
 ```
 
-or CDN
+```bash
+    yarn add @sf/websockets 
+```
+
+Next use it like so
+```js
+    import { SFSocket } from '@sf/websockets';
+```
+
+
+Or via bundle file
 
 ```html
-    <script src="TODO:"></script>
+    <script src="/build/socket.js"></script>
+    <script type="text/javascript">
+        var Socket = SFSocket.SFSocket;
+        var connection = new Socket({ host: 'localhost'});
+    </script>
 ```
 
-## WebSocket
+## API
 
 SFSocket proposes easy way to use WebSockets:
 
 ```js
+import { SFSocket } from '@sf/websockets';
+
+const socketOptions = { host: 'localhost' };
+
 // create an instance of SFSocket
 const ws = new SFSocket(socketOptions);
 
@@ -39,14 +57,39 @@ ws.unsubscribe('message', prepareEvent);
 ws.disconnect();
 ```
 
+### SFSocket
+
 <table class="responsive">
   <tbody>
     <tr>
       <th colspan=2>SFSocket</th>
+    </tr>        
+    <tr>
+      <td colspan=2>
+        <b>Properties</b>
+      </td>
+    </tr>    
+    <tr>
+      <td>
+        <code>static instances</code>
+      </td>
+      <td>
+      <code>SFSocket[]</code><br>
+       Array of all existing sockets
+      </td>
+    </tr>   
+    <tr>
+      <td>
+        <code>static isReady</code>
+      </td>
+      <td>
+      <code>boolean</code><br>
+      false before `ready()` is called. If is true any new SFSocket will connect upon creation.
+      </td>
     </tr>
     <tr>
       <td colspan=2>
-        <b>Methods</code>
+        <b>Methods</b>
       </td>
     </tr>
     <tr>
@@ -54,7 +97,8 @@ ws.disconnect();
         <code>static ready()</code>
       </td>
       <td>
-        Marks sockets as ready and launches all connections.
+        Marks sockets as ready and launches all connections.<br>
+        Use if you need to make all sockets to connect automatically on creation
       </td>
     </tr>
     <tr>
@@ -68,11 +112,12 @@ ws.disconnect();
     </tr>
     <tr>
       <td>
-        <code>joinChannel(channel)</code>
+        <code>joinChannel(channel, dontJoin)</code>
       </td>
       <td>
         Creates a named channel and joins it<br>
         <code>channel: string</code> name of channel to join. Should not be one of system ones `@join` `#join` `@leave` and `#leave`<br>
+        <code>dontJoin: boolean</code> <b>default false</b> if true, channel is created, registered inside instance but not joined automatically. Call `join` method to join later.<br>
         <code>return value: Channel</code> returns channel object
       </td>
     </tr>
@@ -81,7 +126,7 @@ ws.disconnect();
         <code>getChannel(channel)</code>
       </td>
       <td>
-        Gets a previosly created named channel<br>
+        Gets a previously created named channel<br>
         <code>return value: Channel</code> returns channel object
       </td>
     </tr>
@@ -120,33 +165,7 @@ ws.disconnect();
   </tbody>
 </table>
 
-
-### Channels
-
-Multiple channels available in SFSocket
-
-```js
-const ws = new SFSocket(socketOptions);
-
-SFSocket.ready()
-
-// create a channel and it is automatically connected to server
-const channel1 = ws.channel('channel_1');
-const channel2 = ws.channel('channel_2');
-
-// subscribe the channel to server 
-channel1.subscribe('message', (event) => doSomething(event));
-channel2.subscribe('message', (event) => doSomething(event));
-
-// disconnect the channel from server 
-channel1.disconnect()
-channel2.disconnect()
-//or
-ws.disconnect()
-```
-
-
-### Constructor options
+### SFSocket constructor options
 
 SFSocket supports standard (ws) and secure (wss) protocols.
 
@@ -219,11 +238,10 @@ SFSocket constructor `new SFSocket(options: ISFSocketConfig)` is expecting optio
   </tbody>
 </table>
 
-
-For example to establish connection to `ws://some.domain.com/foo?bar=1` use following code 
+For example to establish connection to `ws://some.domain.com/foo?bar=1` use following code
 
 ```js
-import { SFSocket } from '@sf/webcokets';
+import { SFSocket } from '@sf/websockets';
 
 const socketOptions = {
   host: 'some.domain.com',
@@ -236,39 +254,239 @@ const ws = new SFSocket(socketOptions);
 
 ```
 
+
+### SFSocket channels
+
+<table class="responsive">
+  <tbody>
+    <tr>
+      <th colspan=2>Channel</th>
+    </tr>    
+    <tr>
+      <td colspan=2>
+        <b>Properties</b>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>status</code>
+      </td>
+      <td>
+        <code>string</code>
+        Channel status, can be `closed` `joining` `joined` `leaving` and `error`
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>name</code>
+      </td>
+      <td>
+        <code>string</code>
+        Channel name
+      </td>
+    </tr>
+    <tr>
+      <td colspan=2>
+        <b>Methods</b>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>constructor(name: string, socket: SFSocket)</code>
+      </td>
+      <td>
+        Creates a channel based on specific SFSocket<br>
+        <code>name: string</code> - channel name. Can't be `@join` `#join` or `@leave`
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>join()</code>
+      </td>
+      <td>
+        Enables channel and sends join command once connection is working
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>leave()</code>
+      </td>
+      <td>
+        Disables channel and sends leave command if connection is working
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>subscibe(event, callback)</code>
+      </td>
+      <td>
+        Subscribes to specific event<br>
+        <code>event: string</code> one of valid event codes. See table below for possible events and their payload<br>
+        <code>callback: (payload) => void</code> callback to call. Type of payload depends on event type<br>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>unsubscibe(event, callback)</code>
+      </td>
+      <td>
+        Unsubscribes from specific event<br>
+        <code>event: string</code> one of valid event codes. See table below for possible events and their payload<br>
+        <code>callback: (payload) => void</code> callback to call. Type of payload depends on event type<br>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>connect()</code>
+      </td>
+      <td>
+        Starts connection. This method is automatically called after `SFSocket.ready()` for all existing and new instances
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>disconnect()</code>
+      </td>
+      <td>
+        Drops connection
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 ### Supported events
 
-SFSocket makes it possible to subscribe to `connected`, `message`, `closed` and `error` events
+`SFSocket` and `Channel` make it possible to subscribe to `connected`, `message`, `closed` and `error` events
 
-```js
-ws.subscribe('connected', () => console.log('connected'));
-ws.subscribe('error', (sfSocketEvent) => doSomething(sfSocketEvent));
-ws.subscribe('message', (sfSocketEvent) => doSomething(sfSocketEvent));
-ws.subscribe('closed', () => console.log('closed'));
-```
+`SFSocket` additionally allows to subscribe to `channel_joined` `channel_join_failed` and `channel_left` events
 
-### Supported format
+<table class="responsive">
+  <tbody>
+    <tr>
+      <th colspan=2>Events</th>
+    </tr>
+    <tr>
+      <td>
+        <code>message</code>
+      </td>
+      <td>
+        <code>ISFSocketEvent</code><br>
+        Generic event of message from specific channel or broadcasted
+        Payload depends on channel server implementation
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>error</code>
+      </td>
+      <td>
+        <code>ISFSocketEvent</code><br>
+        Event of error happened in specific channel or broadcasted
+        Payload would contain error details
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>closed</code>
+      </td>
+      <td>
+        <code>ISFSocketEvent</code><br>
+        Connection was closed due some error. Socket might automatically reconnect after that.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>channel_joined</code>
+      </td>
+      <td>
+        <code>string[]</code><br>
+        Indicates server confirming joining specific channels
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>channel_left</code>
+      </td>
+      <td>
+        <code>string[]</code><br>
+        Indicates server confirming leaving specific channels
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>channel_join_failed</code>
+      </td>
+      <td>
+        <code>string[]</code><br>
+        Indicates server denies joining specific channels
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-SFSocket works in a particular format:
+### ISFSocketEvent structure
 
-```js
-// Send join or leave command manually
-const cmd = 'join'; // 'join' or 'leave'
-const data = ['command arguments']; // List of channels
-ws.sendCommand(cmd, data);
-````
-
-````js
-// Send custom command
-const cmd = 'custom';
-const data = ['command arguments']; // any data
-const channel = 'channel_1'; // Optional param to select channel to send
-ws.sendCommand(cmd, data, channel);
-````
-
-### Events
-
-SFSocket events' formats:
+<table class="responsive">
+  <tbody>
+    <tr>
+      <th colspan=2>ISFSocketEvent</th>
+    </tr>    
+    <tr>
+      <td>
+        <code>type</code>
+      </td>
+      <td>
+        <code>string</code><br>
+        `sfSocket:message` `sfSocket:closed` or `sfSocket:error` depending on event tracked. 
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>data</code>
+      </td>
+      <td>
+        <code>any</code><br>
+        Any serializable payload depending on implementation that refers to successful flow
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>error</code>
+      </td>
+      <td>
+        <code>string</code><br>
+        Error message
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>context</code>
+      </td>
+      <td>
+        <code>object</code><br>
+        Object with event context details
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>context.code</code>
+      </td>
+      <td>
+        <code>number</code><br>
+        Error code if relevant
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>context.channel</code>
+      </td>
+      <td>
+        <code>string</code><br>
+        Channel name if relevant
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ##### Message Event
 
@@ -298,10 +516,68 @@ const ErrorEvent: ISFSocketEvent = {
 };
 ```
 
-`closed` and `connected` subscriptions do not have any event.
 
-Development
------------
+
+### Samples
+
+Working with events
+
+```js
+const ws = new SFSocket(socketOptions);
+
+ws.subscribe('connected', () => console.log('connected'));
+ws.subscribe('error', (sfSocketEvent) => doSomething(sfSocketEvent));
+ws.subscribe('message', (sfSocketEvent) => doSomething(sfSocketEvent));
+ws.subscribe('closed', () => console.log('closed'));
+
+const channel = ws.joinChannel('topic1');
+
+channel.subscribe('connected', () => console.log('connected'));
+channel.subscribe('error', (sfSocketEvent) => doSomething(sfSocketEvent));
+channel.subscribe('message', (sfSocketEvent) => doSomething(sfSocketEvent));
+channel.subscribe('closed', () => console.log('closed'));
+```
+
+Multiple channels creation
+
+```js
+import { SFSocket } from '@sf/websockets';
+
+const socketOptions = { host: 'localhost' };
+
+const ws = new SFSocket(socketOptions);
+
+SFSocket.ready();
+
+// create a channel and it is automatically connected to server
+const channel1 = ws.joinChannel('channel_1');
+const channel2 = ws.joinChannel('channel_2', true); // This one wont auto-join now
+
+// subscribe the channel to server 
+channel1.subscribe('message', (event) => doSomething(event));
+channel2.subscribe('message', (event) => doSomething(event));
+
+channel2.join(); // Start receiving messages for channel2 
+
+// disconnect the channel from server 
+channel1.leave();
+channel2.leave();
+
+// disconnect everything
+ws.disconnect()
+```
+
+### Custom commands
+
+Sending custom commands is supported via `sendCommand` method. `join` and `leave` commands can't be used as command name, payload can be any serializable data.
+
+```js
+const cmd = 'foo'; // Any string except 'join' or 'leave'
+const data = ['bar']; // Serializable data
+ws.sendCommand(cmd, data);
+````
+
+## Development
 
 ##### Prerequisites
 
@@ -311,10 +587,3 @@ Development
 ##### Windows
 
 On windows execute `git config core.autocrlf false` to disable automatic line ending conversion.
-
-##### TODO
-
-* What kind of commands we are expected to send on server. Currently only 'join' and 'leave' are sending something legit. Channel name in 'sendCommand' is completely ignored.
-* We don't need separate 'sfSocket' prefix as all binds are already having a type and we can either omit it or remove completely
-* Connection callback can and should be made into promise. Or why do we might need flow of error events? Needs research.
-* Needs documenting that channel names should not have '@' symbol and why

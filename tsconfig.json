@@ -12,7 +12,8 @@
     "composite": true,
     "moduleResolution": "node",
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "experimentalDecorators": true
   },
   "exclude": [
     "**/__tests__"

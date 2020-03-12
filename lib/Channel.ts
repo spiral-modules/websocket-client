@@ -2,17 +2,18 @@ import { UEventCallback } from './types';
 import { SFSocket } from './SFSocket';
 import ConnectionManager, { ConnectionManagerEventMap } from './connection/ConnectionManager';
 import { NamesDict } from './eventdispatcher/events';
+import { autobind } from './autobind';
 
 export enum ChannelStatus {
-  CLOSED = 'closed', // Connection command not yet sent or leave commang
+  CLOSED = 'closed', // Connection command not yet sent or connection was interrupted or server closed channel
   JOINING = 'joining', // Socket sent join command, server has not responded with OK
   JOINED = 'joined', // Server returned OK for join command
-  LEAVING = 'leaving', // Socket sent leave command, server has not responded with OK
-  ERROR = 'error', // Last command finished with error
+  LEAVING = 'leaving', // Socket sent leave command
+  ERROR = 'error', // Join command produced an error
 }
 
 export default class Channel {
-  name: string;
+  private readonly selfName: string;
 
   private channelStatus: ChannelStatus = ChannelStatus.CLOSED;
 
@@ -23,40 +24,21 @@ export default class Channel {
   /**
    * Flag to indicate if channel should be joined
    */
-  enabled: boolean;
+  private enabled: boolean;
 
   constructor(name: string, socket: SFSocket) {
-    this.name = name;
+    this.selfName = name;
     this.socket = socket;
     this.cMgr = socket.cMgr;
     this.enabled = false;
-    this.cMgr.bind(NamesDict.DISCONNECTED, () => {
-      this.channelStatus = ChannelStatus.CLOSED; // Channel has been closed by external event
-    });
-    this.cMgr.bind(NamesDict.CHANNEL_JOIN_FAILED, (channels: string[]) => {
-      if (channels.indexOf(this.name) >= 0) {
-        this.channelStatus = ChannelStatus.CLOSED; // Channel has failed to join
-      }
-    });
-    this.cMgr.bind(NamesDict.CHANNEL_JOINED, (channels: string[]) => {
-      if (channels.indexOf(this.name) >= 0) {
-        this.channelStatus = ChannelStatus.JOINED; // Channel has failed to join
-      }
-    });
-    this.cMgr.bind(NamesDict.CHANNEL_LEFT, (channels: string[]) => {
-      if (channels.indexOf(this.name) >= 0) {
-        this.channelStatus = ChannelStatus.CLOSED; // Channel has failed to join
-      }
-    });
-    this.cMgr.bind(NamesDict.CONNECTED, () => {
-      if (this.enabled) { // if should join/re-join
-        this.sendJoinCommand();
-      }
-    });
   }
 
   get status() {
     return this.channelStatus;
+  }
+
+  get name() {
+    return this.selfName;
   }
 
   /**
@@ -69,15 +51,9 @@ export default class Channel {
   join() {
     if (this.enabled) return;
     this.enabled = true;
+    this.startListening();
     if (this.cMgr.isConnected()) {
       this.sendJoinCommand();
-    }
-  }
-
-  private sendJoinCommand() {
-    if (this.channelStatus !== ChannelStatus.JOINING) {
-      this.channelStatus = ChannelStatus.JOINING;
-      this.cMgr.sendJoin([this.name]);
     }
   }
 
@@ -90,11 +66,69 @@ export default class Channel {
   }
 
   leave() {
-    if (this.channelStatus !== ChannelStatus.LEAVING) {
+    if (this.enabled) {
       this.enabled = false;
       this.channelStatus = ChannelStatus.LEAVING;
-      this.cMgr.sendLeave([this.name]);
-      this.channelStatus = ChannelStatus.CLOSED;
+      if (this.cMgr.isConnected()) {
+        this.cMgr.sendLeave([this.name]);
+      }
+      this.stopListening();
     }
+  }
+
+  @autobind
+  private onConnect() {
+    if (this.enabled) { // if should join/re-join
+      this.sendJoinCommand();
+    }
+  }
+
+  @autobind
+  private onDisconnect() {
+    this.channelStatus = ChannelStatus.CLOSED; // Channel has been closed by external event
+  }
+
+  @autobind
+  private onJoin(channels: string[]) {
+    if (channels.indexOf(this.name) >= 0) {
+      this.channelStatus = ChannelStatus.JOINED; // Channel has failed to join
+    }
+  }
+
+  @autobind
+  private onLeft(channels: string[]) {
+    if (channels.indexOf(this.name) >= 0) {
+      this.channelStatus = ChannelStatus.CLOSED; // Channel was left
+    }
+  }
+
+  @autobind
+  private onJoinFailed(channels: string[]) {
+    if (channels.indexOf(this.name) >= 0) {
+      this.channelStatus = ChannelStatus.ERROR; // Failed to join
+    }
+  }
+
+  private sendJoinCommand() {
+    if (this.channelStatus !== ChannelStatus.JOINING) {
+      this.channelStatus = ChannelStatus.JOINING;
+      this.cMgr.sendJoin([this.name]);
+    }
+  }
+
+  private startListening() {
+    this.cMgr.bind(NamesDict.DISCONNECTED, this.onDisconnect);
+    this.cMgr.bind(NamesDict.CHANNEL_JOIN_FAILED, this.onJoinFailed);
+    this.cMgr.bind(NamesDict.CHANNEL_JOINED, this.onJoin);
+    this.cMgr.bind(NamesDict.CHANNEL_LEFT, this.onLeft);
+    this.cMgr.bind(NamesDict.CONNECTED, this.onConnect);
+  }
+
+  private stopListening() {
+    this.cMgr.unbind(NamesDict.DISCONNECTED, this.onDisconnect);
+    this.cMgr.unbind(NamesDict.CHANNEL_JOIN_FAILED, this.onJoinFailed);
+    this.cMgr.unbind(NamesDict.CHANNEL_JOINED, this.onJoin);
+    this.cMgr.unbind(NamesDict.CHANNEL_LEFT, this.onLeft);
+    this.cMgr.unbind(NamesDict.CONNECTED, this.onConnect);
   }
 }

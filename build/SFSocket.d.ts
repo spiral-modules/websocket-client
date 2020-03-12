@@ -38,7 +38,7 @@ export declare class SFSocket {
     static isReady: boolean;
     static ready(): void;
     private config;
-    channels: IChannels;
+    private channels;
     cMgr: ConnectionManager;
     constructor(options?: ISFSocketConfig);
     connect(): void;
@@ -48,7 +48,7 @@ export declare class SFSocket {
     leaveChannelList(channelNames: string[]): void;
     subscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>, channel?: string): ConnectionManager;
     unsubscribe<K extends keyof ConnectionManagerEventMap>(eventName: K, callback: UEventCallback<ConnectionManagerEventMap, K>, channel?: string): ConnectionManager;
-    joinChannel(chanelName: string): Channel;
+    joinChannel(chanelName: string, dontJoin?: boolean): Channel;
     leaveChannel(chanelName: string): Channel;
     getChannel(name: string): Channel;
 }

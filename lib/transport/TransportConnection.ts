@@ -63,8 +63,8 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
         this.onError(e);
         this.onClosed({
           type: SFSocketEventType.ERROR,
-          data: null,
-          error: e,
+          data: e,
+          error: e.toString(),
           context: {},
         });
       });
@@ -136,7 +136,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
       });
     } else {
       this.onClosed({
-        type: SFSocketEventType.CLOSED,
+        type: SFSocketEventType.ERROR,
         data: null,
         error: 'Closed for unknown reason',
         context: {},

@@ -18,7 +18,8 @@
     "build:js": "webpack",
     "build": "cross-env NODE_ENV=production yarn build:js",
     "lint": "eslint ./**/*.ts --fix",
-    "test": "jest"
+    "test": "jest",
+    "prepare": "yarn lint & yarn test & yarn build"
   },
   "husky": {
     "hooks": {
