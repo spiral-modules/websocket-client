@@ -1,5 +1,5 @@
 {
-  "name": "spiral/websockets",
+  "name": "spiral/websocket-client",
   "type": "library",
   "description": "Websocket JS Client",
   "license": "MIT",
