@@ -26,9 +26,20 @@
       "pre-push": "yarn lint"
     }
   },
+  "files": [
+    "lib",
+    "build"
+  ],
   "author": "SpiralScout",
   "license": "MIT",
   "dependencies": {},
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/spiral/websockets"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "homepage": "https://github.com/spiral/websockets",
   "devDependencies": {
     "@babel/core": "^7.8.3",
