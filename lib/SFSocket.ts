@@ -28,6 +28,7 @@ export interface ISFSocketConfig {
   queryParams?: { [key: string]: string };
   unavailableTimeout?: number;
   useTLS?: boolean;
+  retryTimeout?: number;
 }
 
 export interface ISFSocketEvent {

@@ -5,5 +5,6 @@ export const defaultConfig: ISFSocketConfig = {
   port: 80,
   path: '',
   unavailableTimeout: 10000,
+  retryTimeout: 1000,
   useTLS: false,
 };

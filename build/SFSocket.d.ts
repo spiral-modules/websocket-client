@@ -23,6 +23,7 @@ export interface ISFSocketConfig {
     };
     unavailableTimeout?: number;
     useTLS?: boolean;
+    retryTimeout?: number;
 }
 export interface ISFSocketEvent {
     type: SFSocketEventType;
