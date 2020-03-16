@@ -30,6 +30,12 @@ Or via bundle file
     </script>
 ```
 
+If you prefer CDN usage, use following URL for most recent version
+
+```
+https://cdn.jsdelivr.net/gh/spiral/websockets/build/socket.js
+```
+
 ## API
 
 SFSocket proposes easy way to use WebSockets:
