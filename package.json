@@ -1,6 +1,6 @@
 {
   "name": "@spiralscout/websockets",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Websocket client for spiral framework",
   "main": "build/socket.js",
   "types": "build/index.d.ts",
@@ -34,8 +34,8 @@
   "license": "MIT",
   "dependencies": {},
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/spiral/websockets"
+    "type": "git",
+    "url": "https://github.com/spiral/websockets"
   },
   "publishConfig": {
     "access": "public"

@@ -1,7 +1,7 @@
 import { UndescribedCallbackFunction } from '../types';
 import Connection from '../connection/Connection';
 import TransportConnection, { ITransportHooks } from './TransportConnection';
-import { ISFSocketConfig } from '../SFSocket';
+import { ISFSocketConfig, ISFSocketEvent } from '../SFSocket';
 import { NamesDict } from '../eventdispatcher/events';
 
 export interface IRunner {
@@ -70,13 +70,13 @@ export default class Transport implements ITransport {
       callback(null, result);
     };
 
-    const onError = (error: any) => {
-      unbindListeners();
-      callback(error);
+    const onError = () => {
+      // Note errors are bound and handled above
     };
 
-    const onClosed = () => {
+    const onClosed = (closeEvent: ISFSocketEvent) => {
       unbindListeners();
+      callback(closeEvent);
     };
 
     transport.bind(NamesDict.INITIALIZED, onInitialized);

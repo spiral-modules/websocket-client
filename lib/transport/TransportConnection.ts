@@ -4,9 +4,15 @@ import { NamesDict } from '../eventdispatcher/events';
 
 export interface ITransportHooks {
   url: string;
+
   isInitialized(): boolean;
+
   getSocket(url: string, options?: ISFSocketConfig): WebSocket;
 }
+
+const isEvent = (variableToCheck: any): variableToCheck is Event => (
+  variableToCheck && typeof variableToCheck.type === 'string' && typeof variableToCheck.currentTarget !== 'undefined'
+);
 
 
 /**
@@ -49,7 +55,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
     this.state = 'new';
   }
 
-  connect() : boolean {
+  connect(): boolean {
     if (this.socket || this.state !== 'initialized') {
       return false;
     }
@@ -65,7 +71,9 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
           type: SFSocketEventType.ERROR,
           data: e,
           error: e.toString(),
-          context: {},
+          context: {
+            code: 0,
+          },
         });
       });
       return false;
@@ -80,7 +88,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
    *
    * @return {Boolean} true if there was a connection to close
    */
-  close() : boolean {
+  close(): boolean {
     if (this.socket) {
       this.socket.close();
       return true;
@@ -88,7 +96,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
     return false;
   }
 
-  send(data : any) : boolean { // TODO
+  send(data: any): boolean { // TODO
     if (this.state === 'open') {
       // Workaround for MobileSafari bug (see https://gist.github.com/2052006)
       setTimeout(() => {
@@ -116,12 +124,20 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
     this.socket.onopen = null;
   }
 
-  private onError(error?: string) {
-    this.emit(NamesDict.ERROR, {
-      type: SFSocketEventType.ERROR,
-      error: error || 'websocket connection error',
-      data: null,
-    });
+  private onError(error?: Event | Error) {
+    if (isEvent(error)) {
+      this.emit(NamesDict.ERROR, {
+        type: SFSocketEventType.ERROR,
+        error: 'Websocket connection error',
+        data: null,
+      });
+    } else {
+      this.emit(NamesDict.ERROR, {
+        type: SFSocketEventType.ERROR,
+        error: error ? error.message : 'Websocket connection error',
+        data: error ? error.name : null,
+      });
+    }
   }
 
   private onClose(closeEvent?: CloseEvent) {
@@ -139,7 +155,9 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
         type: SFSocketEventType.ERROR,
         data: null,
         error: 'Closed for unknown reason',
-        context: {},
+        context: {
+          code: 0,
+        },
       });
     }
     this.unbindListeners();
@@ -159,8 +177,8 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
     this.socket.onopen = () => {
       this.onOpen();
     };
-    this.socket.onerror = () => {
-      this.onError();
+    this.socket.onerror = (socketError: Event) => {
+      this.onError(socketError);
     };
     this.socket.onclose = (closeEvent: CloseEvent) => {
       this.onClose(closeEvent);
