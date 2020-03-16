@@ -1,5 +1,5 @@
 {
-  "name": "@sf/websockets",
+  "name": "@spiralscout/websockets",
   "version": "0.0.2",
   "description": "Websocket client for spiral framework",
   "main": "build/socket.js",

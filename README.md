@@ -7,16 +7,16 @@ JavaScript WebSockets client library with channel support.
 SFSocket available for installing with npm or yarn
 
 ```bash
-    npm install @sf/websockets -D  
+    npm install @spiralscout/websockets -D  
 ```
 
 ```bash
-    yarn add @sf/websockets 
+    yarn add @spiralscout/websockets 
 ```
 
 Next use it like so
 ```js
-    import { SFSocket } from '@sf/websockets';
+    import { SFSocket } from '@spiralscout/websockets';
 ```
 
 
@@ -35,7 +35,7 @@ Or via bundle file
 SFSocket proposes easy way to use WebSockets:
 
 ```js
-import { SFSocket } from '@sf/websockets';
+import { SFSocket } from '@spiralscout/websockets';
 
 const socketOptions = { host: 'localhost' };
 
@@ -241,7 +241,7 @@ SFSocket constructor `new SFSocket(options: ISFSocketConfig)` is expecting optio
 For example to establish connection to `ws://some.domain.com/foo?bar=1` use following code
 
 ```js
-import { SFSocket } from '@sf/websockets';
+import { SFSocket } from '@spiralscout/websockets';
 
 const socketOptions = {
   host: 'some.domain.com',
@@ -541,7 +541,7 @@ channel.subscribe('closed', () => console.log('closed'));
 Multiple channels creation
 
 ```js
-import { SFSocket } from '@sf/websockets';
+import { SFSocket } from '@spiralscout/websockets';
 
 const socketOptions = { host: 'localhost' };
 
