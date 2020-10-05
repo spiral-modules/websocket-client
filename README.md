@@ -90,7 +90,7 @@ ws.disconnect();
       </td>
       <td>
       <code>boolean</code><br>
-      false before `ready()` is called. If is true any new SFSocket will connect upon creation.
+      false before <code>ready()</code> is called. If is true any new SFSocket will connect upon creation.
       </td>
     </tr>
     <tr>
@@ -122,8 +122,8 @@ ws.disconnect();
       </td>
       <td>
         Creates a named channel and joins it<br>
-        <code>channel: string</code> name of channel to join. Should not be one of system ones `@join` `#join` `@leave` and `#leave`<br>
-        <code>dontJoin: boolean</code> <b>default false</b> if true, channel is created, registered inside instance but not joined automatically. Call `join` method to join later.<br>
+        <code>channel: string</code> name of channel to join. Should NOT be one of system ones: <code>@join</code>, <code>#join</code>, <code>@leave</code>, <code>#leave</code><br>
+        <code>dontJoin: boolean</code> <b>default false</b> if true, channel is created, registered inside instance but not joined automatically. Call <code>join</code> method to join later.<br>
         <code>return value: Channel</code> returns channel object
       </td>
     </tr>
@@ -142,13 +142,13 @@ ws.disconnect();
       </td>
       <td>
         Removes a named channel and leaves it<br>
-        <code>channel: string</code> name of channel to join. Should not be one of system ones `@join` `#join` `@leave` and `#leave`<br>
+        <code>channel: string</code> name of channel to join. Should NOT be one of system ones <code>@join</code>, <code>#join</code>, <code>@leave</code>, <code>#leave</code><br>
         <code>return value: Channel</code> returns channel object
       </td>
     </tr>
     <tr>
       <td>
-        <code>subscibe(event, callback, channel)</code>
+        <code>subscribe(event, callback, channel)</code>
       </td>
       <td>
         Subscribes to specific event<br>
@@ -159,13 +159,13 @@ ws.disconnect();
     </tr>
     <tr>
       <td>
-        <code>unsubscibe(event, callback, channel)</code>
+        <code>unsubscribe(event, callback, channel)</code>
       </td>
       <td>
         Unsubscribes from specific event<br>
         <code>event: string</code> one of valid event codes. See table below for possible events and their payload<br>
         <code>callback: (payload) => void</code> callback to call. Type of payload depends on event type<br>
-        <code>channel: string</code> (optional) Channel name to unfollow. If none, unsubscribes from all channels.. Note that doesn't automatically remove channel, just removes listener from existing one.
+        <code>channel: string</code> (optional) Channel name to unfollow. If none, unsubscribes from all channels. Note that doesn't automatically remove channel, just removes listener from existing one.
       </td>
     </tr>
   </tbody>
@@ -175,7 +175,7 @@ ws.disconnect();
 
 SFSocket supports standard (ws) and secure (wss) protocols.
 
-SFSocket constructor `new SFSocket(options: ISFSocketConfig)` is expecting options of type `ISFSocketConfig`
+SFSocket constructor <code>new SFSocket(options: ISFSocketConfig)</code> is expecting options of type <code>ISFSocketConfig</code>
 
 <table class="responsive">
   <tbody>
@@ -207,7 +207,7 @@ SFSocket constructor `new SFSocket(options: ISFSocketConfig)` is expecting optio
       </td>
       <td>
         <code>boolean</code><br>
-        (optional) Use TSL `wss` instead of regular `ws` protocol<br>
+        (optional) Use TSL <code>wss</code> instead of regular <code>ws</code> protocol<br>
         <b>Default</b>: false
       </td>
     </tr>
@@ -244,7 +244,7 @@ SFSocket constructor `new SFSocket(options: ISFSocketConfig)` is expecting optio
   </tbody>
 </table>
 
-For example to establish connection to `ws://some.domain.com/foo?bar=1` use following code
+For example to establish connection to <code>ws://some.domain.com/foo?bar=1</code> use following code
 
 ```js
 import { SFSocket } from '@spiralscout/websockets';
@@ -279,7 +279,7 @@ const ws = new SFSocket(socketOptions);
       </td>
       <td>
         <code>string</code>
-        Channel status, can be `closed` `joining` `joined` `leaving` and `error`
+        Channel status, can be <code>closed</code>, <code>joinin</code>, <code>joined</code>, <code>leaving</code> or <code>error</code>
       </td>
     </tr>
     <tr>
@@ -302,7 +302,7 @@ const ws = new SFSocket(socketOptions);
       </td>
       <td>
         Creates a channel based on specific SFSocket<br>
-        <code>name: string</code> - channel name. Can't be `@join` `#join` or `@leave`
+        <code>name: string</code> - channel name. Can NOT be <code>@join</code>, <code>#join</code>, <code>@leave</code>, <code>#leave</code>
       </td>
     </tr>
     <tr>
@@ -323,7 +323,7 @@ const ws = new SFSocket(socketOptions);
     </tr>
     <tr>
       <td>
-        <code>subscibe(event, callback)</code>
+        <code>subscribe(event, callback)</code>
       </td>
       <td>
         Subscribes to specific event<br>
@@ -333,7 +333,7 @@ const ws = new SFSocket(socketOptions);
     </tr>
     <tr>
       <td>
-        <code>unsubscibe(event, callback)</code>
+        <code>unsubscribe(event, callback)</code>
       </td>
       <td>
         Unsubscribes from specific event<br>
@@ -346,7 +346,7 @@ const ws = new SFSocket(socketOptions);
         <code>connect()</code>
       </td>
       <td>
-        Starts connection. This method is automatically called after `SFSocket.ready()` for all existing and new instances
+        Starts connection. This method is automatically called after <code>SFSocket.ready()</code> for all existing and new instances
       </td>
     </tr>
     <tr>
@@ -362,9 +362,9 @@ const ws = new SFSocket(socketOptions);
 
 ### Supported events
 
-`SFSocket` and `Channel` make it possible to subscribe to `connected`, `message`, `closed` and `error` events
+<code>SFSocket</code> and <code>Channel</code> make it possible to subscribe to <code>connected</code>, <code>message</code>, <code>closed</code> and <code>error</code> events
 
-`SFSocket` additionally allows to subscribe to `channel_joined` `channel_join_failed` and `channel_left` events
+<code>SFSocket</code> additionally allows to subscribe to <code>channel_joined</code>, <code>channel_join_failed</code> and <code>channel_left</code> events
 
 <table class="responsive">
   <tbody>
@@ -443,7 +443,7 @@ const ws = new SFSocket(socketOptions);
       </td>
       <td>
         <code>string</code><br>
-        `sfSocket:message` `sfSocket:closed` or `sfSocket:error` depending on event tracked. 
+        <code>sfSocket:message</code>, <code>sfSocket:closed</code> or <code>sfSocket:error</code> depending on event tracked. 
       </td>
     </tr>
     <tr>
@@ -575,7 +575,7 @@ ws.disconnect()
 
 ### Custom commands
 
-Sending custom commands is supported via `sendCommand` method. `join` and `leave` commands can't be used as command name, payload can be any serializable data.
+Sending custom commands is supported via <code>sendCommand</code> method. <code>join</code> and <code>leave</code> commands can NOT be used as command name, payload can be any serializable data.
 
 ```js
 const cmd = 'foo'; // Any string except 'join' or 'leave'
