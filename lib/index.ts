@@ -1,5 +1,9 @@
 import { SFSocket } from './SFSocket';
 import { NamesDict as eventNames } from './eventdispatcher/events';
+import Channel, { ChannelStatus } from './Channel';
+import {
+  ICallback, ICallbackTable, SFEventMap, UEventCallback, UndescribedCallbackFunction,
+} from './types';
 
 const makeSocketOptions = (wsUrl: string) => {
   const url = new URL(wsUrl);
@@ -16,5 +20,15 @@ const makeSocketOptions = (wsUrl: string) => {
   return null;
 };
 
-export { SFSocket, makeSocketOptions, eventNames };
-export default SFSocket;
+export {
+  SFSocket,
+  makeSocketOptions,
+  eventNames,
+  Channel,
+  ChannelStatus,
+  ICallback,
+  ICallbackTable,
+  SFEventMap,
+  UEventCallback,
+  UndescribedCallbackFunction,
+};
