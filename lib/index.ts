@@ -1,5 +1,11 @@
-import { SFSocket } from './SFSocket';
-import { NamesDict as eventNames } from './eventdispatcher/events';
+import {
+  SFSocket,
+  ISFSocketEvent,
+  ISFSocketConfig,
+  SFSocketEventType,
+} from './SFSocket';
+
+import { NamesDict, NamesDict as eventNames } from './eventdispatcher/events';
 import Channel, { ChannelStatus } from './Channel';
 import {
   ICallback, ICallbackTable, SFEventMap, UEventCallback, UndescribedCallbackFunction,
@@ -28,6 +34,10 @@ export {
   ChannelStatus,
   ICallback,
   ICallbackTable,
+  ISFSocketEvent,
+  NamesDict,
+  ISFSocketConfig,
+  SFSocketEventType,
   SFEventMap,
   UEventCallback,
   UndescribedCallbackFunction,
