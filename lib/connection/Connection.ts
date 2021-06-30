@@ -23,7 +23,6 @@ export enum ConnectionCommands {
 
 export const SystemCommands = new Set<string>([ConnectionCommands.JOIN, ConnectionCommands.LEAVE]);
 
-
 export interface EventWithCode {
   context: { code: string }
 }

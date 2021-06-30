@@ -15,9 +15,7 @@ const clientMessage = {
   type: SFSocketEventType.MESSAGE,
 };
 
-
 const serverUrl = makeTestSocketUrl(socketOptions);
-
 
 describe('sfSocket subscriptions', () => {
   beforeEach(() => {
@@ -105,7 +103,6 @@ describe('sfSocket subscriptions', () => {
 
     Server.close();
   });
-
 
   test('sfSocket close callback should be called', async () => {
     const socketCallback = jest.fn();

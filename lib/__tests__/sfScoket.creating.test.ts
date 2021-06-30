@@ -3,7 +3,6 @@ import { SFSocket } from '../index';
 import { socketOptions } from '../mock-data';
 import { ConnectionManagerEventMap } from '../connection/ConnectionManager';
 
-
 describe('sfSocket instances count', () => {
   beforeEach(() => {
     SFSocket.instances = [];

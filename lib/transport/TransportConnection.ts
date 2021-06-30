@@ -14,7 +14,6 @@ const isEvent = (variableToCheck: any): variableToCheck is Event => (
   variableToCheck && typeof variableToCheck.type === 'string' && typeof variableToCheck.currentTarget !== 'undefined'
 );
 
-
 /**
  * Lists events that can be emitted by `TransportConnection` class
  */
@@ -116,7 +115,6 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
     this.socket.onclose = null;
     this.socket.onmessage = null;
   }
-
 
   private onOpen() {
     this.changeState(NamesDict.OPEN);

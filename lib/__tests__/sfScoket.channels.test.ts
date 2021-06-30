@@ -16,7 +16,6 @@ const clientMessage = {
   type: SFSocketEventType.MESSAGE,
 };
 
-
 describe('sfSocket channels', () => {
   beforeEach(() => {
     SFSocket.instances = [];
@@ -74,7 +73,6 @@ describe('sfSocket channels', () => {
 
     const SocketChannel = ClientSocket.joinChannel('testChannel');
     SocketChannel.subscribe(NamesDict.MESSAGE, channelCallback);
-
 
     expect(channelCallback).toHaveBeenCalledTimes(0);
 

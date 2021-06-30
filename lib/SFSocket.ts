@@ -20,7 +20,6 @@ export enum SFSocketEventType {
   CLOSED = 'sfSocket:closed',
 }
 
-
 export interface ISFSocketConfig {
   host: string,
   port: string | number;
