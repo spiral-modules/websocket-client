@@ -83,7 +83,7 @@ describe('sfSocket events', () => {
     const Server = new WS(fakeUrl);
     const ClientSocket = new SFSocket(socketOptions);
     const joinData = ['joinData'];
-    const clientMessage = JSON.stringify({ topic: 'join', payload: joinData });
+    const clientMessage = JSON.stringify({ command: 'join', payload: joinData });
 
     SFSocket.ready();
 
@@ -100,8 +100,8 @@ describe('sfSocket events', () => {
     const Server = new WS(fakeUrl);
     const ClientSocket = new SFSocket(socketOptions);
     const joinData = ['joinData'];
-    const clientMessage1 = JSON.stringify({ topic: 'join', payload: joinData });
-    const clientMessage2 = JSON.stringify({ topic: 'leave', payload: joinData });
+    const clientMessage1 = JSON.stringify({ command: 'join', topics: joinData });
+    const clientMessage2 = JSON.stringify({ command: 'leave', topics: joinData });
 
     SFSocket.ready();
 

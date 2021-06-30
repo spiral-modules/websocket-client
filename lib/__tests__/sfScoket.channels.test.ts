@@ -25,7 +25,7 @@ describe('sfSocket channels', () => {
   test('sfSocket channels should be connected', async () => {
     const ClientSocket = new SFSocket(socketOptions);
     const Server = new WS(serverUrl);
-    const serverReceivedMessages = JSON.stringify({ topic: 'join', payload: ['testChannel'] });
+    const serverReceivedMessages = JSON.stringify({ command: 'join', topics: ['testChannel'] });
 
     SFSocket.ready();
     const channel = ClientSocket.joinChannel('testChannel');
