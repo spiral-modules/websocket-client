@@ -38,9 +38,9 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
 
   private connection: Connection | null;
 
-  private unavailableTimer: number;
+  private unavailableTimer: NodeJS.Timeout | null;
 
-  private retryTimer: number;
+  private retryTimer: NodeJS.Timeout | null;
 
   private transport: ITransport;
 
@@ -65,8 +65,8 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
     );
     this.runner = null;
 
-    this.unavailableTimer = 0;
-    this.retryTimer = 0;
+    this.unavailableTimer = null;
+    this.retryTimer = null;
   }
 
   connect() {
@@ -166,12 +166,10 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
   }
 
   private clearRetryTimer() {
-    if (this.retryTimer) {
-      if (this.retryTimer) {
-        clearTimeout(this.retryTimer);
-      }
-      this.retryTimer = 0;
+    if (this.retryTimer !== null) {
+      clearTimeout(this.retryTimer);
     }
+    this.retryTimer = null;
   }
 
   private setUnavailableTimer() {
@@ -184,10 +182,10 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
   }
 
   private clearUnavailableTimer() {
-    if (this.unavailableTimer) {
+    if (this.unavailableTimer !== null) {
       clearTimeout(this.unavailableTimer);
     }
-    this.unavailableTimer = 0;
+    this.unavailableTimer = null;
   }
 
   private buildConnectionCallbacks(errorCallbacks: IErrorCallbacks): IConnectionCallbacks {
