@@ -1,1 +1,1 @@
-{"version":3,"file":"autobind.d.ts","sourceRoot":"","sources":["../lib/autobind.ts"],"names":[],"mappings":"AAKA,wBAAgB,QAAQ,CAAC,MAAM,EAAE,GAAG,EAAE,GAAG,EAAE,MAAM,GAAG,MAAM,EAAE,UAAU,EAAE,kBAAkB;;;;EAwCzF"}
+{"version":3,"file":"autobind.d.ts","sourceRoot":"","sources":["../lib/autobind.ts"],"names":[],"mappings":"AAKA,wBAAgB,QAAQ,CAAC,MAAM,EAAE,GAAG,EAAE,GAAG,EAAE,MAAM,GAAG,MAAM,EAAE,UAAU,EAAE,kBAAkB;;;eAoC3E,GAAG;EAIjB"}
