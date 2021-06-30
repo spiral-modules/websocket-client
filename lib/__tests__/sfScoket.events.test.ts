@@ -83,7 +83,7 @@ describe('sfSocket events', () => {
     const Server = new WS(fakeUrl);
     const ClientSocket = new SFSocket(socketOptions);
     const joinData = ['joinData'];
-    const clientMessage = JSON.stringify({ command: 'join', payload: joinData });
+    const clientMessage = JSON.stringify({ command: 'join', topics: joinData });
 
     SFSocket.ready();
 
