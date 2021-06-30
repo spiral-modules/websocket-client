@@ -1,6 +1,6 @@
 {
   "name": "@spiralscout/websockets",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Websocket client for spiral framework",
   "main": "build/socket.js",
   "types": "build/index.d.ts",
