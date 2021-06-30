@@ -72,9 +72,10 @@ export class SFSocket {
       ...constructorOptions,
     };
 
-    this.config.port = typeof constructorOptions.port === 'number'
-      ? constructorOptions.port >> 0
-      : (constructorOptions.useTLS ? 443 : 80);
+    this.config.port = constructorOptions.useTLS ? 443 : 80;
+    if (constructorOptions.port) {
+      this.config.port = constructorOptions.port;
+    }
 
     this.cMgr = new ConnectionManager(this.config);
 
