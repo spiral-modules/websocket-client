@@ -2,6 +2,14 @@
 
 JavaScript WebSockets client library with channel support.
 
+Since RoadRunner 2.x, the communication protocol has been changed. Below is a 
+table of version compatibility.
+
+| RoadRunner | spiralscout/websockets |
+|------------|------------------------|
+| 1.0+       | 0.0.1+                 |
+| 2.3+       | 0.1.0+                 |
+
 ## Installation
 
 SFSocket available for installing with npm or yarn

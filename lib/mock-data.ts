@@ -1,6 +1,5 @@
 import { ISFSocketConfig } from './SFSocket';
 
-
 const socketOptions: ISFSocketConfig = {
   host: 'test-socket.ws',
   port: 80,
@@ -8,7 +7,6 @@ const socketOptions: ISFSocketConfig = {
   unavailableTimeout: 10000,
   useTLS: false,
 };
-
 
 const makeTestSocketUrl = (options: ISFSocketConfig) => {
   const scheme = `ws${options.useTLS ? 's' : ''}`;

@@ -3,7 +3,6 @@ import { SFSocket } from '../index';
 import { socketOptions } from '../mock-data';
 import { ConnectionManagerEventMap } from '../connection/ConnectionManager';
 
-
 describe('sfSocket instances count', () => {
   beforeEach(() => {
     SFSocket.instances = [];
@@ -18,7 +17,9 @@ describe('sfSocket instances count', () => {
   test('should be multiple instances', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let t1 = new SFSocket(socketOptions);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     t1 = new SFSocket(socketOptions);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     t1 = new SFSocket(socketOptions);
 
     expect(SFSocket.instances.length).toBe(3);

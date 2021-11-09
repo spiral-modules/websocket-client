@@ -20,7 +20,6 @@ export enum SFSocketEventType {
   CLOSED = 'sfSocket:closed',
 }
 
-
 export interface ISFSocketConfig {
   host: string,
   port: string | number;
@@ -42,6 +41,7 @@ export interface ISFSocketEvent {
 }
 
 export class SFSocket {
+  // eslint-disable-next-line no-use-before-define
   static instances: SFSocket[] = [];
 
   static isReady: boolean = false;
@@ -69,9 +69,13 @@ export class SFSocket {
 
     this.config = {
       ...defaultConfig,
-      port: constructorOptions.useTLS ? 443 : 80,
       ...constructorOptions,
     };
+
+    this.config.port = constructorOptions.useTLS ? 443 : 80;
+    if (constructorOptions.port) {
+      this.config.port = constructorOptions.port;
+    }
 
     this.cMgr = new ConnectionManager(this.config);
 

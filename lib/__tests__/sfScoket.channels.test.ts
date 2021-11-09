@@ -6,6 +6,8 @@ import { SFSocket } from '../index';
 import { makeTestSocketUrl, socketOptions } from '../mock-data';
 import { SFSocketEventType } from '../SFSocket';
 
+const delay = async (n: number) => new Promise((r) => setTimeout(r, n));
+
 const serverUrl = makeTestSocketUrl(socketOptions);
 const clientMessage = {
   context: {
@@ -16,7 +18,6 @@ const clientMessage = {
   type: SFSocketEventType.MESSAGE,
 };
 
-
 describe('sfSocket channels', () => {
   beforeEach(() => {
     SFSocket.instances = [];
@@ -25,7 +26,7 @@ describe('sfSocket channels', () => {
   test('sfSocket channels should be connected', async () => {
     const ClientSocket = new SFSocket(socketOptions);
     const Server = new WS(serverUrl);
-    const serverReceivedMessages = JSON.stringify({ topic: 'join', payload: ['testChannel'] });
+    const serverReceivedMessages = JSON.stringify({ command: 'join', topics: ['testChannel'] });
 
     SFSocket.ready();
     const channel = ClientSocket.joinChannel('testChannel');
@@ -35,7 +36,7 @@ describe('sfSocket channels', () => {
     await expect(Server).toReceiveMessage(serverReceivedMessages);
     Server.send(JSON.stringify({ topic: '@join', payload: ['testChannel'] }));
 
-    // expect(channel.status).toBe(ChannelStatus.JOINED);
+    expect(channel.status).toBe(ChannelStatus.JOINED);
 
     expect(Server).toHaveReceivedMessages([serverReceivedMessages]);
 
@@ -56,6 +57,8 @@ describe('sfSocket channels', () => {
 
     await Server.connected;
 
+    await delay(1000);
+
     expect(websocketCallback.mock.calls[0][0]).toBeUndefined();
     expect(websocketCallback).toHaveBeenCalledTimes(1);
 
@@ -74,7 +77,6 @@ describe('sfSocket channels', () => {
 
     const SocketChannel = ClientSocket.joinChannel('testChannel');
     SocketChannel.subscribe(NamesDict.MESSAGE, channelCallback);
-
 
     expect(channelCallback).toHaveBeenCalledTimes(0);
 
@@ -103,7 +105,7 @@ describe('sfSocket channels', () => {
     Server.close();
 
     expect(channelCallback.mock.calls[0][0]).toEqual({
-      context: { code: undefined }, data: null, error: undefined, type: SFSocketEventType.ERROR,
+      context: { code: 1000 }, data: '', error: null, type: SFSocketEventType.CLOSED,
     });
     expect(channelCallback).toHaveBeenCalledTimes(1);
   });

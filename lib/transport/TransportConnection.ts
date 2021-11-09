@@ -14,7 +14,6 @@ const isEvent = (variableToCheck: any): variableToCheck is Event => (
   variableToCheck && typeof variableToCheck.type === 'string' && typeof variableToCheck.currentTarget !== 'undefined'
 );
 
-
 /**
  * Lists events that can be emitted by `TransportConnection` class
  */
@@ -63,7 +62,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
     const { url } = this.hooks;
     try {
       this.socket = this.hooks.getSocket(url);
-    } catch (e) {
+    } catch (e: any) {
       // Workaround for MobileSafari bug (see https://gist.github.com/2052006)
       setTimeout(() => {
         this.onError(e);
@@ -116,7 +115,6 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
     this.socket.onclose = null;
     this.socket.onmessage = null;
   }
-
 
   private onOpen() {
     this.changeState(NamesDict.OPEN);
