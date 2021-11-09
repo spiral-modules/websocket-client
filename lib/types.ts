@@ -1,19 +1,21 @@
 import { NamesDict } from './eventdispatcher/events';
 import { ISFSocketEvent } from './SFSocket';
 
-export interface ICallback<F = UndescribedCallbackFunction> {
-    fn: F;
-    channel: string | null;
-}
-
-export type ICallbackTable<EventMap> = { [key in keyof EventMap]?: Array<ICallback<UEventCallback<EventMap, any>>> };
-
 /**
  * Some function that is not described how it's functioning
  * TODO: Need to get rid of all functions like this, therefore marked as deprecated by design
  * @deprecated
  */
 export type UndescribedCallbackFunction = Function;
+
+export interface ICallback<F = UndescribedCallbackFunction> {
+    fn: F;
+    channel: string | null;
+}
+
+export type UEventCallback<EventMap, K extends keyof EventMap> = (data: EventMap[K]) => any;
+
+export type ICallbackTable<EventMap> = { [key in keyof EventMap]?: Array<ICallback<UEventCallback<EventMap, any>>> };
 
 /**
  * Maps events to what kind of data they provide
@@ -29,5 +31,3 @@ export interface SFEventMap {
     [NamesDict.CLOSED]: ISFSocketEvent,
     [NamesDict.INITIALIZED]: undefined,
 }
-
-export type UEventCallback<EventMap, K extends keyof EventMap> = (data: EventMap[K]) => any;

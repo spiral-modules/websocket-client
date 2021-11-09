@@ -121,7 +121,7 @@ describe('sfSocket subscriptions', () => {
 
     expect(socketCallback).toHaveBeenCalledTimes(1);
     expect(socketCallback.mock.calls[0][0]).toEqual({
-      context: { code: undefined }, data: null, error: undefined, type: SFSocketEventType.ERROR,
+      context: { code: 1000 }, data: '', error: null, type: SFSocketEventType.CLOSED,
     });
   });
 });

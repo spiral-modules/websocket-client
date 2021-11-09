@@ -16,6 +16,7 @@ module.exports = {
     'airbnb-base',
   ],
   globals: {
+    "NodeJS": true,
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
   },
@@ -29,6 +30,7 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    "no-shadow": "off",
     'output-todo-comments/output-todo-comments': [
       "warn", {
         'terms': ['todo'],

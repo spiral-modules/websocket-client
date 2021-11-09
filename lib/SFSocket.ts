@@ -41,6 +41,7 @@ export interface ISFSocketEvent {
 }
 
 export class SFSocket {
+  // eslint-disable-next-line no-use-before-define
   static instances: SFSocket[] = [];
 
   static isReady: boolean = false;

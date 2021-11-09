@@ -8,12 +8,13 @@
     "sourceMap": true,
     "strict": true,
     "removeComments": true,
-    "target": "esnext",
+    "target": "es6",
     "composite": true,
     "moduleResolution": "node",
     "declaration": true,
     "declarationMap": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "types": ["node", "jest"]
   },
   "exclude": [
     "**/__tests__"

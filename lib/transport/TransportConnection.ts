@@ -62,7 +62,7 @@ export default class TransportConnection extends EventsDispatcher<TransportEvent
     const { url } = this.hooks;
     try {
       this.socket = this.hooks.getSocket(url);
-    } catch (e) {
+    } catch (e: any) {
       // Workaround for MobileSafari bug (see https://gist.github.com/2052006)
       setTimeout(() => {
         this.onError(e);

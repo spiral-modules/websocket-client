@@ -6,6 +6,8 @@ import { SFSocket } from '../index';
 import { makeTestSocketUrl, socketOptions } from '../mock-data';
 import { SFSocketEventType } from '../SFSocket';
 
+const delay = async (n: number) => new Promise((r) => setTimeout(r, n));
+
 const serverUrl = makeTestSocketUrl(socketOptions);
 const clientMessage = {
   context: {
@@ -34,7 +36,7 @@ describe('sfSocket channels', () => {
     await expect(Server).toReceiveMessage(serverReceivedMessages);
     Server.send(JSON.stringify({ topic: '@join', payload: ['testChannel'] }));
 
-    // expect(channel.status).toBe(ChannelStatus.JOINED);
+    expect(channel.status).toBe(ChannelStatus.JOINED);
 
     expect(Server).toHaveReceivedMessages([serverReceivedMessages]);
 
@@ -54,6 +56,8 @@ describe('sfSocket channels', () => {
     expect(websocketCallback).toHaveBeenCalledTimes(0);
 
     await Server.connected;
+
+    await delay(1000);
 
     expect(websocketCallback.mock.calls[0][0]).toBeUndefined();
     expect(websocketCallback).toHaveBeenCalledTimes(1);
@@ -101,7 +105,7 @@ describe('sfSocket channels', () => {
     Server.close();
 
     expect(channelCallback.mock.calls[0][0]).toEqual({
-      context: { code: undefined }, data: null, error: undefined, type: SFSocketEventType.ERROR,
+      context: { code: 1000 }, data: '', error: null, type: SFSocketEventType.CLOSED,
     });
     expect(channelCallback).toHaveBeenCalledTimes(1);
   });

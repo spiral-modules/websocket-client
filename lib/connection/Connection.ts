@@ -99,10 +99,10 @@ export default class Connection extends EventsDispatcher<ConnectionEventMap> {
         let sfSocketEvent = null;
         try {
           sfSocketEvent = decodeMessage(messageEvent.data);
-        } catch (e) {
+        } catch (e: any) {
           this.emit(NamesDict.ERROR, {
             type: SFSocketEventType.ERROR,
-            error: e,
+            error: e.toString(),
             data: JSON.stringify(messageEvent),
           });
         }
