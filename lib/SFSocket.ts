@@ -3,6 +3,7 @@ import Channel from './Channel';
 import ConnectionManager, { ConnectionManagerEventMap } from './connection/ConnectionManager';
 import { defaultConfig } from './constants';
 import { NamesDict } from './eventdispatcher/events';
+import { RetryStrategy } from './connection/types';
 
 export interface IChannels {
   [name: string]: Channel;
@@ -28,6 +29,8 @@ export interface ISFSocketConfig {
   unavailableTimeout?: number;
   useTLS?: boolean;
   retryTimeout?: number;
+  // eslint-disable-next-line no-use-before-define
+  retryStrategy?: RetryStrategy;
 }
 
 export interface ISFSocketEvent {

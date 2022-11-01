@@ -1,4 +1,4 @@
-import { ISFSocketEvent } from '../SFSocket';
+import { ISFSocketEvent, SFSocket } from '../SFSocket';
 
 export interface IAction {
     action: string;
@@ -19,3 +19,5 @@ export interface IConnectionCallbacks {
     error: (error: ISFSocketEvent) => void; // TODO
     closed: (reason: any) => void; // TODO
 }
+
+export type RetryStrategy = (event: ISFSocketEvent, prevState: unknown) => Promise<({ state: unknown, retry: boolean })>

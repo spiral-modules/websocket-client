@@ -16,4 +16,8 @@ export interface IConnectionCallbacks {
     error: (error: ISFSocketEvent) => void;
     closed: (reason: any) => void;
 }
+export declare type RetryStrategy = (event: ISFSocketEvent, prevState: unknown) => Promise<({
+    state: unknown;
+    retry: boolean;
+})>;
 //# sourceMappingURL=types.d.ts.map

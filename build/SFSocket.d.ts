@@ -1,6 +1,7 @@
 import { UEventCallback } from './types';
 import Channel from './Channel';
 import ConnectionManager, { ConnectionManagerEventMap } from './connection/ConnectionManager';
+import { RetryStrategy } from './connection/types';
 export interface IChannels {
     [name: string]: Channel;
 }
@@ -24,6 +25,7 @@ export interface ISFSocketConfig {
     unavailableTimeout?: number;
     useTLS?: boolean;
     retryTimeout?: number;
+    retryStrategy?: RetryStrategy;
 }
 export interface ISFSocketEvent {
     type: SFSocketEventType;

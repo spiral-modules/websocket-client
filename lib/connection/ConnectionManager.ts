@@ -42,6 +42,8 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
 
   private retryTimer: NodeJS.Timeout | null;
 
+  private retryState: unknown;
+
   private transport: ITransport;
 
   private runner: IRunner | null;
@@ -116,10 +118,10 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
   }
 
   private startConnecting() {
-    const callback: UndescribedCallbackFunction = (closeEvent: ISFSocketEvent | undefined, connection: Connection) => { // TODO
+    const callback: UndescribedCallbackFunction = async (closeEvent: ISFSocketEvent | undefined, connection: Connection) => { // TODO
       if (closeEvent) {
         this.abandonConnection();
-        if (this.shouldRetry(closeEvent)) {
+        if (await this.shouldRetry(closeEvent)) {
           this.retryIn(this.options.retryTimeout || 0);
         }
         this.emit(NamesDict.CLOSED, closeEvent);
@@ -199,9 +201,9 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
         // just emit error to user - socket will already be closed by browser
         this.emit(NamesDict.ERROR, errorEvent);
       },
-      closed: (closeEvent: ISFSocketEvent) => {
+      closed: async (closeEvent: ISFSocketEvent) => {
         this.abandonConnection();
-        if (this.shouldRetry(closeEvent)) {
+        if (await this.shouldRetry(closeEvent)) {
           this.retryIn(this.options.retryTimeout || 0);
         }
         this.emit(NamesDict.CLOSED, closeEvent);
@@ -245,6 +247,8 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
     this.connection.bind(NamesDict.CHANNEL_JOINED, this.connectionCallbacks.channelJoined);
     this.connection.bind(NamesDict.ERROR, this.connectionCallbacks.error);
     this.connection.bind(NamesDict.CLOSED, this.connectionCallbacks.closed);
+
+    this.retryState = undefined;
   }
 
   private abandonConnection() {
@@ -276,7 +280,16 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private shouldRetry(closeEvent: ISFSocketEvent): boolean {
-    return this.state === NamesDict.CONNECTING || this.state === NamesDict.CONNECTED;
+  private async shouldRetry(closeEvent: ISFSocketEvent): Promise<boolean> {
+    if (this.options.retryStrategy) {
+      const { retry, state } = await this.options.retryStrategy(closeEvent, this.retryState);
+      if (retry) {
+        this.retryState = state;
+      } else {
+        this.retryState = undefined;
+      }
+      return retry;
+    }
+    return false;
   }
 }

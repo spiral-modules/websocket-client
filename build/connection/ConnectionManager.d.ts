@@ -20,6 +20,7 @@ export default class ConnectionManager extends EventsDispatcher<ConnectionManage
     private connection;
     private unavailableTimer;
     private retryTimer;
+    private retryState;
     private transport;
     private runner;
     private errorCallbacks;
